@@ -1,0 +1,200 @@
+/* ============================================================
+   TABLE OF CONTENTS
+   1. Imports & Tokens
+   2. Reset
+   3. Base
+   4. Layout
+   5. Canvases
+   6. Buttons
+   7. Color Blocks
+   8. Inputs & Sliders
+   9. Animations
+   ============================================================ */
+
+/* ============================================================
+   1. IMPORTS & TOKENS
+   ============================================================ */
+/* #region */
+@import url("satoshi.css");
+
+:root {
+  --color-1: hsl(15, 95%, 85%);
+  --color-2: hsl(16, 98%, 51%);
+  --color-3: hsl(260, 97%, 88%);
+  --color-4: hsl(259, 100%, 72%);
+}
+
+/* #endregion */
+
+/* ============================================================
+   2. RESET
+   ============================================================ */
+/* #region */
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  list-style: none;
+  quotes: none;
+}
+
+/* #endregion */
+
+/* ============================================================
+   3. BASE
+   ============================================================ */
+/* #region */
+body {
+  font-family: Satoshi, sans-serif;
+  background: #212121;
+  min-height: 100svh;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px;
+}
+
+h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f4f4f4;
+}
+
+h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f4f4f4;
+}
+
+h4 {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* #endregion */
+
+/* ============================================================
+   4. LAYOUT
+   ============================================================ */
+/* #region */
+
+/* #endregion */
+
+/* ============================================================
+   5. CANVASES
+   ============================================================ */
+/* #region */
+
+/* #endregion */
+
+/* ============================================================
+   6. BUTTONS
+   ============================================================ */
+/* #region */
+
+/* #endregion */
+
+/* ============================================================
+   8. INPUTS & SLIDERS
+   ============================================================ */
+/* #region */
+
+/* #endregion */
+
+/* ============================================================
+   9. ANIMATIONS
+   ============================================================ */
+/* #region */
+
+/* #endregion */
+
+/* ============================================================
+   10. RESPONSIVE
+   ============================================================ */
+/* #region */
+
+/* #endregion */
