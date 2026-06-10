@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-avant: "itc-avant-garde-gothic-pro", "itc-avant-garde-gothic-lt", sans-serif;
+
+  --color-forest: #2A3C2D;
+  --color-deep:   #192719;
+  --color-orange: #E5501A;
+  --color-sky:    #C3DCF4;
+  --color-cream:  #F2EDE3;
+  --color-maroon: #7A1E1E;
+  --color-sand:   #D4CAB8;
+}
+
+html { scroll-behavior: smooth; }
+
+/* STILL glitch ghost */
+.still-ghost {
+  position: relative;
+  display: inline-block;
+}
+.still-ghost::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  -webkit-text-stroke: 1px rgba(242, 237, 227, 0.12);
+  color: transparent;
+  pointer-events: none;
+}
+
+/* Card hover lift */
+.coffee-card {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s ease;
+}
+.coffee-card:hover {
+  transform: rotate(0deg) translateY(-14px) scale(1.06) !important;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.45);
+  z-index: 30 !important;
+}
