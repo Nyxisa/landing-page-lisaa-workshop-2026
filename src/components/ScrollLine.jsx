@@ -1,71 +1,77 @@
 import { useRef, useEffect } from 'react'
 
-// Chemin serpentin qui traverse toute la hauteur de page (viewBox 0-100).
-// Courbes intentionnellement irrégulières — amplitude variable, pas un sinus.
-const PATH = [
-  'M 55 0',
-  'C 82 4,  28 11, 42 20',   // large courbe vers la droite puis gauche
-  'C 58 29, 90 36, 64 46',   // swing droit, large
-  'C 38 56, 10 62, 36 72',   // traverse vers la gauche, profond
-  'C 62 82, 78 88, 50 100',  // revient vers le centre en bas
-].join(' ')
+// Organic S-curve in viewBox "0 0 22 100"
+// preserveAspectRatio="none" stretches y to viewport height while x stays 22px
+const PATH_D = 'M 11,1 C 19,12 3,25 11,38 C 19,51 3,64 11,77 C 19,88 4,96 11,99'
 
 export default function ScrollLine() {
   const fillRef = useRef()
+  const dotRef  = useRef()
 
   useEffect(() => {
-    const el = fillRef.current
-    if (!el) return
+    const fill = fillRef.current
+    const dot  = dotRef.current
+    if (!fill || !dot) return
 
-    const len = el.getTotalLength()
-
-    // Initialiser : le fill est intégralement masqué
-    el.style.strokeDasharray  = len
-    el.style.strokeDashoffset = len
+    const len = fill.getTotalLength()
+    fill.style.strokeDasharray  = len
+    fill.style.strokeDashoffset = len
 
     const onScroll = () => {
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight
       const progress  = maxScroll > 0 ? Math.min(1, window.scrollY / maxScroll) : 0
-      el.style.strokeDashoffset = len * (1 - progress)
+      fill.style.strokeDashoffset = len * (1 - progress)
+
+      const pt = fill.getPointAtLength(progress * len)
+      dot.setAttribute('cx', pt.x)
+      dot.setAttribute('cy', pt.y)
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none"
       aria-hidden="true"
-      style={{ zIndex: 3 }}
+      className="fixed pointer-events-none"
+      style={{ zIndex: 3, left: 18, top: 0, bottom: 0, width: 22 }}
     >
       <svg
-        viewBox="0 0 100 100"
+        width="22"
+        height="100%"
+        viewBox="0 0 22 100"
         preserveAspectRatio="none"
-        className="w-full h-full"
+        overflow="visible"
       >
-        {/* Track — le fil complet, très discret */}
+        {/* Track */}
         <path
-          d={PATH}
+          d={PATH_D}
           fill="none"
           stroke="rgba(248,245,230,0.07)"
-          strokeWidth="1.5"
+          strokeWidth="1.4"
           strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
         />
-
-        {/* Fill — se révèle au scroll (trim-path via dashoffset) */}
+        {/* Fill */}
         <path
           ref={fillRef}
-          d={PATH}
+          d={PATH_D}
           fill="none"
-          stroke="rgba(248,245,230,0.45)"
-          strokeWidth="1.5"
+          stroke="rgba(229,80,26,0.7)"
+          strokeWidth="1.4"
           strokeLinecap="round"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-          style={{ willChange: 'stroke-dashoffset' }}
+          style={{
+            willChange: 'stroke-dashoffset',
+            filter: 'drop-shadow(0 0 3px rgba(229,80,26,0.55))',
+          }}
+        />
+        {/* Travelling dot */}
+        <circle
+          ref={dotRef}
+          cx={11} cy={1} r={3}
+          fill="#E5501A"
+          style={{ filter: 'drop-shadow(0 0 5px rgba(229,80,26,0.85))' }}
         />
       </svg>
     </div>

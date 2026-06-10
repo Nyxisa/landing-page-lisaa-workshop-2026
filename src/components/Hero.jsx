@@ -1,4 +1,7 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useLayoutEffect } from 'react'
+import gsap from 'gsap'
+import HeroParticles from './HeroParticles'
+import HeroFoam from './HeroFoam'
 
 // Speed: 0 = fixed in viewport | 1 = scrolls normally | negative = faster than scroll
 const LAYERS = [
@@ -14,6 +17,17 @@ export default function Hero() {
   const refs    = useRef([])
   const logoRef = useRef()
   const barRefs = useRef([])  // les 4 éléments de remplissage
+
+  // Entrance animation — opacity only, does not conflict with scroll transform
+  useLayoutEffect(() => {
+    if (!logoRef.current) return
+    const children = logoRef.current.children
+    gsap.fromTo(
+      children,
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: 1.1, stagger: 0.18, ease: 'power3.out', delay: 0.4 }
+    )
+  }, [])
 
   useEffect(() => {
     const onScroll = () => {
@@ -56,6 +70,28 @@ export default function Hero() {
         />
       ))}
 
+      {/* ── Crema radial overlay ── */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          zIndex: 11,
+          inset: 0,
+          background: `
+            radial-gradient(ellipse 55% 42% at 50% 48%,
+              rgba(180,110,30,0.18) 0%,
+              rgba(140,75,20,0.1) 40%,
+              transparent 70%
+            )
+          `,
+        }}
+      />
+
+      {/* ── Coffee foam/crema layer ── */}
+      <HeroFoam />
+
+      {/* ── Three.js particles overlay ── */}
+      <HeroParticles />
+
       {/* ── Logo + tagline ── */}
       <div ref={logoRef} className="absolute left-0 px-12 pb-14" style={{ zIndex: 10, top: '60%', willChange: 'transform' }}>
         <h1>
@@ -68,6 +104,17 @@ export default function Hero() {
         <p className="font-serif italic text-cream/45 mt-4 text-lg tracking-wide">
           Where time slows down.
         </p>
+      </div>
+
+      {/* ── Scroll indicator ── */}
+      <div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        style={{ zIndex: 25 }}
+      >
+        <span className="font-avant text-[9px] tracking-[0.45em] uppercase text-cream/30">
+          Scroll
+        </span>
+        <div className="w-px h-8 bg-gradient-to-b from-cream/30 to-transparent scroll-line-anim" />
       </div>
 
       {/* ── 4 barres de progression scroll ── */}

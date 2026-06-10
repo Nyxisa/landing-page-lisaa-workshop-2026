@@ -1,0 +1,54 @@
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes float-a {
+  0%, 100% { transform: rotate(-9deg) translate(-10px, 15px); }
+  50%       { transform: rotate(-10.5deg) translate(-11px, 13px); }
+}
+@keyframes float-b {
+  0%, 100% { transform: rotate(2deg) translate(20px, 5px); }
+  50%       { transform: rotate(3deg) translate(21px, 3px); }
+}
+@keyframes float-c {
+  0%, 100% { transform: rotate(11deg) translate(52px, 20px); }
+  50%       { transform: rotate(9.5deg) translate(51px, 22px); }
+}
+.quote-card-0 { animation: float-a 5s ease-in-out infinite; }
+.quote-card-1 { animation: float-b 5.8s ease-in-out infinite; }
+.quote-card-2 { animation: float-c 4.9s ease-in-out infinite; }
+
+@keyframes scroll-pulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(0.4); }
+  50%       { opacity: 0.9; transform: scaleY(1);   }
+}
+
+.scroll-line-anim {
+  animation: scroll-pulse 1.8s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+::selection {
+  background-color: #E5501A;
+  color: #F8F5E6;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #292929;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(248, 245, 230, 0.2);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(248, 245, 230, 0.38);
+}
+
+/* Ensure focus outlines are visible for accessibility */
+:focus-visible {
+  outline: 1px solid rgba(229, 80, 26, 0.7);
+  outline-offset: 3px;
+}
