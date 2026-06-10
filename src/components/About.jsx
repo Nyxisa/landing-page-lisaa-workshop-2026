@@ -2,9 +2,9 @@ export default function About() {
   return (
     <section className="bg-forest px-12 py-24">
 
-      <span className="text-[11px] font-avant tracking-[0.45em] uppercase text-orange">
+      <h3 className="text-orange">
         About Still
-      </span>
+      </h3>
 
       <div className="mt-8 grid grid-cols-2 gap-20 items-start">
 

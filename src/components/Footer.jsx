@@ -15,16 +15,15 @@ const COLS = [
 
 export default function Footer() {
   return (
-    <footer className="bg-deep px-12 pt-20 pb-0 overflow-hidden">
+    <footer className="bg-charcoal px-12 pt-20 pb-0 overflow-hidden">
 
       {/* Links grid */}
       <div className="grid grid-cols-3 gap-12 mb-24">
         {COLS.map(col => (
           <div key={col.head}>
-            <div className="text-[10px] font-avant tracking-[0.35em] uppercase
-                            text-cream/30 mb-5">
+            <h3 className="text-cream mb-5">
               {col.head}
-            </div>
+            </h3>
             <ul className="space-y-3">
               {col.links.map(item => (
                 <li key={item}>
@@ -42,14 +41,14 @@ export default function Footer() {
         ))}
       </div>
 
-      {/* Large brand footer — intentionally bleeds off-screen */}
+      {/* Large brand footer — logo */}
       <div className="border-t border-cream/8 pt-5 -mx-12">
-        <div
-          className="whitespace-nowrap leading-[0.82] tracking-tighter select-none pl-12"
-          style={{ fontSize: 'clamp(90px, 15vw, 200px)' }}
-        >
-          <span className="font-avant font-black uppercase text-cream">STILL</span>
-          <span className="font-serif italic text-cream/80"> coffee</span>
+        <div className="pl-12">
+          <img
+            src="/logo-still-coffee.svg"
+            alt="STILL coffee"
+            style={{ height: 'clamp(90px, 15vw, 200px)', width: 'auto' }}
+          />
         </div>
       </div>
 

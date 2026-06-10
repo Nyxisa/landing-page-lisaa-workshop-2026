@@ -24,7 +24,7 @@ const CARDS = [
     altitude: '1,500 – 2,000 m',
     harvest:  'Harvest: Oct – Dec',
     bg:       '#C3DCF4',
-    text:     '#192719',
+    text:     '#25432B',
     style:    { transform: 'rotate(5deg) translateY(12px)', zIndex: 10 },
   },
 ]
@@ -32,7 +32,7 @@ const CARDS = [
 function Card({ card }) {
   return (
     <div
-      className="coffee-card relative rounded-xl cursor-pointer flex-shrink-0"
+      className="coffee-card relative rounded-xl cursor-pointer shrink-0"
       style={{ ...card.style, width: 210, height: 290, backgroundColor: card.bg }}
     >
       {/* Image placeholder */}
@@ -55,11 +55,11 @@ function Card({ card }) {
 
 export default function Coffees() {
   return (
-    <section className="bg-deep px-12 py-24">
+    <section className="bg-charcoal px-12 py-24">
 
-      <span className="text-[11px] font-avant tracking-[0.45em] uppercase text-orange">
+      <h2 className="text-sm font-avant font-bold tracking-[0.2em] uppercase text-orange">
         Coffees
-      </span>
+      </h2>
 
       {/* Cards + SVG ribbon */}
       <div className="relative mt-16 flex justify-center items-center gap-5">

@@ -15,9 +15,9 @@ export default function Experience() {
   return (
     <section className="bg-forest px-12 py-24">
 
-      <span className="text-[11px] font-avant tracking-[0.45em] uppercase text-orange">
+      <h3 className="text-orange">
         Experience
-      </span>
+      </h3>
 
       {/* Heading row */}
       <div className="mt-8 grid grid-cols-2 gap-16 items-end">

@@ -8,9 +8,9 @@ export default function Origins() {
   return (
     <section className="bg-forest px-12 py-24">
 
-      <span className="text-[11px] font-avant tracking-[0.45em] uppercase text-orange">
+      <h3 className="text-[11px] font-avant tracking-[0.45em] uppercase text-orange">
         Origins
-      </span>
+      </h3>
 
       <div className="mt-16 flex justify-center">
         {/* Globe — layered rings */}

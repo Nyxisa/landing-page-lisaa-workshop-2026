@@ -1,104 +1,96 @@
-import { useRef, useMemo } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useRef, useEffect } from 'react'
 
-// Deterministic bean positions — trig prevents re-randomisation on hot-reload
-const BEANS = Array.from({ length: 17 }, (_, i) => ({
-  id: i,
-  pos: [
-    Math.sin(i * 2.3999) * 5.6 + Math.cos(i * 1.7123) * 2.1,
-    Math.cos(i * 1.8731) * 2.9 + Math.sin(i * 2.1097) * 1.3,
-    Math.sin(i * 0.9730) * 2.5 - 0.6,
-  ],
-  rot: [i * 0.743, i * 1.267, i * 0.521],
-  scale: 0.38 + (i % 7) * 0.13,
-}))
+// Speed: 0 = fixed in viewport | 1 = scrolls normally | negative = faster than scroll
+const LAYERS = [
+  { src: '/Coffee-beans-3.webp', speed: 0.60, zIndex: 5  }, // far bg  — monte à 40% vitesse
+  { src: '/Coffee-beans-2.webp', speed: 0.40, zIndex: 6  }, // mid bg  — monte à 60% vitesse
+  { src: '/Coffee-beans-1.webp', speed: 0.15, zIndex: 20 }, // devant  — monte à 85% vitesse
+]
+const LOGO_SPEED = -0.4  // logo monte à 140% vitesse → s'échappe vers le haut en premier
 
-function Bean({ pos, rot, scale }) {
-  const ref = useRef()
-  const iy = pos[1]
-  const [spd, phase, rx, rz] = useMemo(() => [
-    0.14 + scale * 0.28,
-    (pos[0] + 3) * 0.53,
-    (pos[2] - 1) * 0.0055,
-    (pos[0] - 2) * 0.0075,
-  ], [pos, scale])
-
-  useFrame(({ clock }) => {
-    if (!ref.current) return
-    const t = clock.elapsedTime
-    ref.current.position.y = iy + Math.sin(t * spd + phase) * 0.32
-    ref.current.rotation.x += rx
-    ref.current.rotation.z += rz
-  })
-
-  return (
-    <group ref={ref} position={pos} rotation={rot} scale={scale}>
-      {/* Bean body — flattened ellipsoid */}
-      <mesh scale={[1.38, 0.70, 0.88]}>
-        <sphereGeometry args={[0.5, 28, 18]} />
-        <meshStandardMaterial color="#4A2010" roughness={0.52} metalness={0.06} />
-      </mesh>
-      {/* Central groove */}
-      <mesh position={[0, 0, 0.4]} scale={[0.052, 0.56, 0.14]}>
-        <sphereGeometry args={[1, 10, 10]} />
-        <meshStandardMaterial color="#1C0805" roughness={0.92} />
-      </mesh>
-    </group>
-  )
-}
-
-function Scene() {
-  return (
-    <>
-      <color attach="background" args={['#192719']} />
-      <ambientLight intensity={0.22} />
-      <directionalLight position={[6, 9, 5]}  intensity={1.5} color="#FFD9A0" />
-      <directionalLight position={[-5, -4, 4]} intensity={0.28} color="#A0C8E0" />
-      {BEANS.map(b => <Bean key={b.id} {...b} />)}
-    </>
-  )
-}
+const BAR_COUNT = 4
 
 export default function Hero() {
+  const refs    = useRef([])
+  const logoRef = useRef()
+  const barRefs = useRef([])  // les 4 éléments de remplissage
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y        = window.scrollY
+      const progress = Math.min(1, y / window.innerHeight) // 0→1 pendant la hero
+
+      // parallax images + logo
+      refs.current.forEach((el, i) => {
+        if (el) el.style.transform = `translateY(${y * LAYERS[i].speed}px)`
+      })
+      if (logoRef.current)
+        logoRef.current.style.transform = `translateY(${y * LOGO_SPEED}px)`
+
+      // remplissage des barres : chaque barre couvre 1/4 du scroll
+      barRefs.current.forEach((el, i) => {
+        if (!el) return
+        const fill = Math.min(1, Math.max(0, (progress - i / BAR_COUNT) * BAR_COUNT))
+        el.style.transform = `scaleX(${fill})`
+      })
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <section className="relative h-screen overflow-hidden">
+    <section className="relative h-screen overflow-hidden bg-forest
+    ">
 
-      {/* Three.js layer */}
-      <div className="absolute inset-0">
-        <Canvas camera={{ position: [0, 0, 9.5], fov: 54 }}>
-          <Scene />
-        </Canvas>
-      </div>
+      {/* ── 3 images — même position, même taille, seuls speed + z-index changent ── */}
+      {LAYERS.map((layer, i) => (
+        <img
+          key={layer.src}
+          ref={el => refs.current[i] = el}
+          src={layer.src}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+          style={{ zIndex: layer.zIndex, willChange: 'transform' }}
+        />
+      ))}
 
-      {/* Ink spill — right edge */}
-      <div className="absolute right-0 top-0 w-[38%] h-full pointer-events-none">
-        <svg viewBox="0 0 300 900" className="h-full w-full" preserveAspectRatio="none">
-          <path
-            d="M300 0 C235 120,320 230,268 360 C216 490,140 420,178 560
-               C216 700,318 640,300 900 L400 900 L400 0Z"
-            fill="#131F14"
+      {/* ── Logo + tagline ── */}
+      <div ref={logoRef} className="absolute left-0 px-12 pb-14" style={{ zIndex: 10, top: '60%', willChange: 'transform' }}>
+        <h1>
+          <img
+            src="/logo-still-coffee.svg"
+            alt="STILL coffee"
+            style={{ height: '200px', width: 'auto' }}
           />
-        </svg>
-      </div>
-
-      {/* Title — bottom-left, editorial */}
-      <div className="absolute bottom-0 left-0 px-12 pb-14">
-        <h1 className="leading-[0.88] tracking-tighter text-[clamp(72px,8.5vw,120px)]">
-          <span
-            className="still-ghost font-avant font-black uppercase text-cream"
-            data-text="STILL"
-          >STILL</span>
-          <span className="font-serif italic text-cream"> coffee</span>
         </h1>
         <p className="font-serif italic text-cream/45 mt-4 text-lg tracking-wide">
           Where time slows down.
         </p>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-10 right-12 flex flex-col items-center gap-3 opacity-25">
-        <span className="text-[10px] font-avant tracking-[0.4em] uppercase text-cream">Scroll</span>
-        <div className="w-px h-14 bg-cream" />
+      {/* ── 4 barres de progression scroll ── */}
+      <div
+        className="absolute right-12 flex flex-col gap-3"
+        style={{ zIndex: 30, top: '50%', transform: 'translateY(-50%)' }}
+      >
+        {Array.from({ length: BAR_COUNT }, (_, i) => (
+          <div
+            key={i}
+            className="relative overflow-hidden"
+            style={{ width: 32, height: 2 }}
+          >
+            {/* track — fond très discret */}
+            <div className="absolute inset-0 bg-cream/15 rounded-full" />
+            {/* fill — se déploie de gauche à droite */}
+            <div
+              ref={el => barRefs.current[i] = el}
+              className="absolute inset-0 bg-cream/80 rounded-full origin-left"
+              style={{ transform: 'scaleX(0)', willChange: 'transform' }}
+            />
+          </div>
+        ))}
       </div>
 
     </section>
