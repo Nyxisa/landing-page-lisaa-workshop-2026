@@ -122,18 +122,16 @@ function GlobeScene({ rotRef }) {
               </mesh>
               {/* Floating country label */}
               <Html
-                position={[0.62, 0, 0]}
                 occlude={[globeMeshRef]}
                 style={{ pointerEvents: 'none', userSelect: 'none' }}
               >
                 <div className='caption-serif' style={{
-                  transform: 'translateY(-50%)',
+                  transform: 'translate(14px, -50%)',
                   color: 'var(--color-orange)',
                   whiteSpace: 'nowrap',
                   background: 'var(--color-cream)',
                   padding: '2px 12px',
                   borderRadius: '20px',
-                  border: '1px solid rgba(248,245,230,0.16)',
                   fontSize: '16px',
                 }}>
                   {o.name}

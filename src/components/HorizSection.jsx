@@ -7,7 +7,7 @@ import './Origins.css'
 gsap.registerPlugin(ScrollTrigger)
 
 const QUOTE_TEXT =
-  'The best cup of coffee is the one drunk in silence, in the presence of your inner peace.'
+  'The best cup of coffee is the one drunk in the presence of your inner peace.'
 
 const ORIGINS_PINS = [
   {
@@ -103,6 +103,7 @@ export default function HorizSection() {
   const origStampRefs   = useRef([null, null, null])
   const origStatsRef    = useRef()
   const bgDecoRefs      = useRef([null, null, null, null])
+  const quoteImgRefs    = useRef([null, null])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -152,13 +153,17 @@ export default function HorizSection() {
         },
       })
 
-      // [0] Label
+      // [0] Label + première quote
       tl.fromTo(
         labelRef.current,
         { opacity: 0, y: 12 },
         { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
         0
       )
+      tl.fromTo(quoteImgRefs.current[0], { opacity: 0 }, { opacity: 0.6, duration: 0.7, ease: 'power2.out' }, 0.2)
+
+      // [2.6] Deuxième quote — après révélation du texte
+      tl.fromTo(quoteImgRefs.current[1], { opacity: 0 }, { opacity: 0.6, duration: 0.7, ease: 'power2.out' }, 2.6)
 
       // [0 → ~2.56] Chars
       const chars = trackRef.current?.querySelectorAll('.char')
@@ -255,54 +260,80 @@ export default function HorizSection() {
 
           {/* ══ PANNEAU 1 — QUOTE ══════════════════════════════════════ */}
           <div
-            className="flex-shrink-0 bg-sky relative flex items-center justify-center overflow-hidden"
+            className="shrink-0 bg-sky relative flex items-center justify-center overflow-hidden"
             style={{ width: '100vw', height: '100vh', paddingTop: '5rem' }}
           >
-            <div
+            <img
+              ref={el => { quoteImgRefs.current[0] = el }}
+              src="/img/quote.webp"
               aria-hidden="true"
+              draggable={false}
               className="absolute pointer-events-none select-none"
               style={{
-                top: -20, left: 32,
-                fontFamily: 'Georgia, serif',
-                fontSize: 'clamp(180px, 22vw, 320px)',
-                lineHeight: 1,
-                color: 'rgba(37,67,43,0.05)',
+                top: '16%', left: '4%',
+                width: 'clamp(80px, 14vw, 120px)', height: 'auto',
+                transform: 'rotate(-7deg)',
+                filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.2)) drop-shadow(2px 4px 8px rgba(0,0,0,0.04))',
+                opacity: 0,
               }}
-            >"</div>
+            />
+            <img
+              ref={el => { quoteImgRefs.current[1] = el }}
+              src="/img/quote.webp"
+              aria-hidden="true"
+              draggable={false}
+              className="absolute pointer-events-none select-none"
+              style={{
+                bottom: '16%', left: '42%',
+                width: 'clamp(80px, 14vw, 120px)', height: 'auto',
+                transform: 'rotate(173deg)',
+                filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.2)) drop-shadow(2px 4px 8px rgba(0,0,0,0.04))',
+                opacity: 0,
+              }}
+            />
 
             {/* Container centré */}
             <div className="container flex items-center h-full w-full">
 
             {/* Colonne texte */}
             <div
-              className="relative z-10 shrink-0"
+              className="relative z-10 shrink-0 flex flex-col h-full justify-center"
               style={{ width: '55%', paddingRight: '4rem' }}
             >
-              <h3
-                ref={labelRef}
-                className="text-maroon/60 mb-8"
-                style={{ opacity: 0 }}
-              >
-                Philosophy
-              </h3>
-              <blockquote
-                className="font-serif italic text-maroon"
-                style={{
-                  fontSize: 'clamp(26px, 3.4vw, 52px)',
-                  lineHeight: 1.25,
-                  maxWidth: '52ch',
-                  whiteSpace: 'normal',
-                }}
-              >
-                <CharSpans text={QUOTE_TEXT} />
-                <footer
-                  ref={footerRef}
-                  className="mt-6 text-charcoal/45"
-                  style={{ opacity: 0, display: 'block' }}
+              <div>
+                <h3
+                  ref={labelRef}
+                  className="text-maroon/60 mb-8"
+                  style={{ opacity: 0 }}
                 >
-                  <h4>— Still Coffee, Paris to Mexico</h4>
-                                  </footer>
-              </blockquote>
+                  Philosophy
+                </h3>
+                <blockquote
+                  className="font-serif italic text-maroon"
+                  style={{
+                    fontSize: 'clamp(26px, 3.4vw, 52px)',
+                    lineHeight: 1.25,
+                    maxWidth: '52ch',
+                    whiteSpace: 'normal',
+                  }}
+                >
+                  <CharSpans text={QUOTE_TEXT} />
+                  <footer
+                    ref={footerRef}
+                    className="mt-6 text-charcoal/45"
+                    style={{ opacity: 0, display: 'block' }}
+                  >
+                    <h4>— Still Coffee, Paris to Mexico</h4>
+                  </footer>
+                </blockquote>
+              </div>
+
+              {/* Scroll hint — ancré en bas de la colonne */}
+              <div className="absolute bottom-10 pointer-events-none select-none">
+                <span className="font-serif italic text-maroon/50" style={{ fontSize: 20 }}>
+                  keep scrolling ➙
+                </span>
+              </div>
             </div>
 
             {/* Colonne timbres */}
@@ -347,6 +378,9 @@ export default function HorizSection() {
               ))}
             </div>
             </div>{/* end container Quote */}
+
+
+
           </div>
 
           {/* ══ PANNEAU 2 — ORIGINS ════════════════════════════════════ */}

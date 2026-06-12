@@ -36,21 +36,23 @@ export default function BackToTop() {
         width: 40,
         height: 40,
         borderRadius: '50%',
-        border: '1px solid rgba(248,245,230,0.18)',
-        backgroundColor: 'rgba(41,41,41,0.82)',
+        border: '2px solid var(--color-cream)',
+        backgroundImage: 'url(/img/texture-steel.webp)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         backdropFilter: 'blur(8px)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'none',
-        transition: 'border-color 0.2s',
       }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(229,80,26,0.65)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(248,245,230,0.18)' }}
+      onMouseEnter={() => gsap.to(btnRef.current, { y: -6, duration: 0.35, ease: 'power2.out' })}
+      onMouseLeave={() => gsap.to(btnRef.current, { y: 0,  duration: 0.45, ease: 'power2.out' })}
     >
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M7 11 L7 3 M3 6 L7 2 L11 6" stroke="rgba(248,245,230,0.65)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+      <span style={{ fontSize: 16, color: 'var(--color-cream)', transform: 'rotate(-90deg)', display: 'block', lineHeight: 1 }}>
+        ➤
+      </span>
     </button>
   )
 }
