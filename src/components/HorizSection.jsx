@@ -76,9 +76,7 @@ function StampCard({ pin }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transform: 'rotate(-18deg)',
         }}>
-          <span style={{ fontSize: 5.5, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'rgba(229,80,26,0.62)', fontWeight: 700 }}>
-            STILL
-          </span>
+          <img src="/logo-stamp.svg" alt="Still" style={{ width: 18, height: 18, opacity: 0.62 }} />
         </div>
       </div>
     </div>

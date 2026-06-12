@@ -23,7 +23,7 @@ export default function App() {
       <BackToTop />
       <Navbar />
       <Hero />
-      <MarqueeStrip variant="sand" />
+      <MarqueeStrip variant="dark" />
       <Experience />
       <Coffees />
       <HorizSection />

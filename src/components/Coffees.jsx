@@ -111,9 +111,9 @@ export default function Coffees() {
       const pinTl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: 'top 70%',
-          end: '+=520',
-          scrub: 1.2,
+          start: 'top 85%',
+          end: '+=400',
+          scrub: 2,
           pin: false,
         },
       })
@@ -134,7 +134,7 @@ export default function Coffees() {
 
 
   return (
-    <section ref={sectionRef} id="coffees" className="bg-charcoal relative overflow-hidden scroll-mt-14">
+    <section ref={sectionRef} id="coffees" className="bg-charcoal relative scroll-mt-14">
       <div className="container py-24">
       <h3 ref={labelRef} className="text-cream/60">
         Coffees
@@ -155,16 +155,16 @@ export default function Coffees() {
       <div ref={containerRef} className="relative mt-16 flex justify-center items-center gap-5">
         <Sticker
           src="/img/texture-glass.webp"
-          style={{ top: '8%', right: '4%' }}
-          initRotation={-14}
-          size={256}
+          style={{ bottom: '-8%', right: '-16%' }}
+          initRotation={-30}
+          size={320}
           delay={0.25}
         />
         <Sticker
           src="/img/texture-tiles-green.webp"
-          style={{ bottom: '6%', left: '3%' }}
-          initRotation={9}
-          size={220}
+          style={{ bottom: '-8%', left: '-20%' }}
+          initRotation={0}
+          size={420}
           delay={0.5}
         />
         {CARDS.map((card, i) => (

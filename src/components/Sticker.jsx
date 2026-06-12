@@ -18,12 +18,12 @@ export default function Sticker({
     const el = ref.current
     if (!el) return
 
-    // Entrance — drop depuis le haut avec rebond
+    // Entrance — apparition douce
     gsap.fromTo(el,
-      { scale: 0, rotation: initRotation - 18, opacity: 0, y: -28 },
+      { scale: 0.88, rotation: initRotation - 6, opacity: 0, y: -14 },
       {
         scale: 1, rotation: initRotation, opacity: 1, y: 0,
-        duration: 0.7, ease: 'back.out(2)',
+        duration: 1.0, ease: 'power3.out',
         delay,
         scrollTrigger: { trigger: el, start: 'top 90%', once: true },
       }
@@ -39,7 +39,7 @@ export default function Sticker({
     // Hover hint
     const onEnter = () => {
       if (isDragging) return
-      gsap.to(el, { scale: 1.08, rotation: initRotation + 4, duration: 0.28, ease: 'power2.out' })
+      gsap.to(el, { scale: 1.04, rotation: initRotation + 2, duration: 0.4, ease: 'power2.out' })
     }
     const onLeave = () => {
       if (isDragging) return
@@ -55,7 +55,7 @@ export default function Sticker({
       startGsapX  = gsap.getProperty(el, 'x')
       startGsapY  = gsap.getProperty(el, 'y')
       gsap.killTweensOf(el)
-      gsap.to(el, { scale: 1.13, rotation: initRotation + 6, duration: 0.18, ease: 'power2.out' })
+      gsap.to(el, { scale: 1.07, rotation: initRotation + 3, duration: 0.22, ease: 'power2.out' })
       window.addEventListener('mousemove', onMove)
       window.addEventListener('mouseup',   onUp)
     }
@@ -80,7 +80,7 @@ export default function Sticker({
       gsap.to(el, {
         x: 0, y: 0,
         scale: 1, rotation: initRotation,
-        duration: 1.0, ease: 'elastic.out(1, 0.42)',
+        duration: 1.1, ease: 'elastic.out(0.5, 0.55)',
       })
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mouseup',   onUp)
