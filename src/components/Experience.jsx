@@ -1,7 +1,6 @@
 import { useRef, useLayoutEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import CharReveal from './CharReveal'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -9,7 +8,7 @@ const STEPS = [
   {
     n: '01',
     title: 'Hand-poured',
-    desc: 'Every cup prepared with patience. Never rushed, never automated — the water temperature and bloom timed by hand.',
+    desc: 'Every cup prepared with patience. Never rushed, never automated, the water temperature and bloom timed by hand.',
     img: '/img/coffee-machine.webp',
     rotate: -6,
   },
@@ -97,14 +96,14 @@ export default function Experience() {
     <section ref={sectionRef} id="experience" className="bg-maroon relative overflow-hidden scroll-mt-14">
       <div className="container py-24">
 
-      <h3 className="text-sky">Experience</h3>
+      <h3 className="text-sky/60">Experience</h3>
 
       <div className="mt-8 grid grid-cols-2 gap-16 items-end">
-        <CharReveal className="text-sky">
-          A single cup
-        </CharReveal>
-        <p className="text-sky/55 text-sm leading-relaxed font-avant pb-2">
-          The ritual of stillness. Each cup at Still is a meditation —
+        <h2 className="text-sky">
+          A single cup.
+        </h2>
+        <p className="body-text-m text-sky/55 pb-2">
+          The ritual of stillness. Each cup at Still is a meditation,
           hand-poured, precisely dosed, served without rush.
           The water temperature, the grind, the bloom:
           every variable tuned to the origin.
@@ -116,7 +115,7 @@ export default function Experience() {
         <div
           key={`hi-${s.n}`}
           ref={el => { imgRefs.current[i] = el }}
-          className="absolute pointer-events-none rounded-xl overflow-hidden"
+          className="absolute pointer-events-none rounded-2xl overflow-hidden"
           style={{ right: '10%', top: '64%', width: 210, height: 270, zIndex: 20 }}
         >
           <img
@@ -135,14 +134,14 @@ export default function Experience() {
             ref={el => { stepsRef.current[i] = el }}
             onMouseEnter={() => handleEnter(i)}
             onMouseLeave={() => handleLeave(i)}
-            className="relative flex items-center gap-10 py-7 border-b border-sky/15
+            className="relative flex items-center gap-10 py-7 pl-5 border-b border-sky/15
                        group cursor-default select-none"
           >
             {/* Hover indicator */}
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-sky
                             origin-top scale-y-0 group-hover:scale-y-100
                             transition-transform duration-300" />
-            <span className="text-xs text-sky/30 font-avant tabular-nums w-5 shrink-0
+            <span className="body-text-s text-sky/30 tabular-nums w-5 shrink-0
                              group-hover:text-sky group-hover:scale-110
                              transition-all duration-300">
               {s.n}
@@ -150,7 +149,7 @@ export default function Experience() {
             <h4 className="text-sky/65 group-hover:text-sky transition-colors duration-300 w-36 shrink-0">
               {s.title}
             </h4>
-            <span className="text-sm text-sky/40 font-avant leading-snug">{s.desc}</span>
+            <span className="body-text-m text-sky/40 leading-snug">{s.desc}</span>
           </div>
         ))}
       </div>

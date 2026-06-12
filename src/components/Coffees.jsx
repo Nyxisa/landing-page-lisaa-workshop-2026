@@ -1,6 +1,7 @@
-import { useRef, useLayoutEffect, useEffect } from 'react'
+import { useRef, useLayoutEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Sticker from './Sticker'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -8,26 +9,26 @@ const CARDS = [
   {
     region: 'Colombia', origin: 'Huila', altitude: '1,600 – 2,100 m',
     harvest: 'Harvest: Mar – Jun', notes: 'Dark chocolate · citrus · full body',
-    bg: '#7A1E1E', text: '#F2EDE3',
+    bg: 'var(--color-maroon)', text: 'var(--color-cream)',
+    gradient: 'linear-gradient(to top, rgba(122,30,30,1) 0%, rgba(122,30,30,0) 100%)',
     rot: -7, dy: 18, sc: 1, zIndex: 10,
-    imgGradient: 'linear-gradient(155deg, #5C1515 0%, #8A2420 55%, #3E0C0C 100%)',
-    ghost: 'HUILA',
+    img: '/img/texture-mousse-brown.webp',
   },
   {
     region: 'Ethiopia', origin: 'Yirgacheffe', altitude: '1,800 – 2,200 m',
     harvest: 'Harvest: Nov – Jan', notes: 'Jasmine · blueberry · floral clarity',
-    bg: '#E5501A', text: '#F2EDE3',
+    bg: 'var(--color-orange)', text: 'var(--color-cream)',
+    gradient: 'linear-gradient(to top, rgba(229,80,26,1) 0%, rgba(229,80,26,0) 100%)',
     rot: -1.5, dy: -8, sc: 1.05, zIndex: 20, featured: true,
-    imgGradient: 'linear-gradient(155deg, #B83C0E 0%, #E5601A 55%, #8C2C08 100%)',
-    ghost: 'YIRGACHEFFE',
+    img: '/img/texture-mousse-white.webp',
   },
   {
     region: 'Japan', origin: 'Uji, Kyoto', altitude: '100 – 350 m',
     harvest: 'Harvest: Apr – May', notes: 'Umami · sweet grass · creamy finish',
-    bg: '#C8DDB8', text: '#1A3320',
+    bg: 'var(--color-forest)', text: 'var(--color-cream)',
+    gradient: 'linear-gradient(to top, rgba(37,67,43,1) 0%, rgba(37,67,43,0) 100%)',
     rot: 5, dy: 12, sc: 1, zIndex: 10,
-    imgGradient: 'linear-gradient(155deg, #7A9E68 0%, #B0CC98 55%, #5A7A48 100%)',
-    ghost: 'UJICHA',
+    img: '/img/texture-matcha.webp',
     matcha: true,
   },
 ]
@@ -36,7 +37,7 @@ function Card({ card, cardRef }) {
   return (
     <div
       ref={cardRef}
-      className="coffee-card group relative rounded-xl cursor-pointer shrink-0 overflow-hidden"
+      className="coffee-card group relative rounded-lg cursor-pointer shrink-0 overflow-hidden"
       style={{
         width: 210, height: 292,
         backgroundColor: card.bg,
@@ -45,40 +46,27 @@ function Card({ card, cardRef }) {
         boxShadow: card.featured ? '0 0 48px rgba(229,80,26,0.22)' : undefined,
       }}
     >
-      {/* Image placeholder with texture gradient + ghost watermark */}
+      {/* Texture image */}
       <div
         className="mx-3 mt-3 rounded-lg overflow-hidden relative"
         style={{ height: 178 }}
       >
-        <div className="w-full h-full" style={{ background: card.imgGradient }} />
-        {/* Ghost region label */}
+        <img src={card.img} alt="" className="w-full h-full object-cover" draggable={false} />
+        {/* Tasting notes overlay — sur l'image */}
         <div
-          className="absolute inset-0 flex items-end justify-start px-3 pb-2"
-          style={{ pointerEvents: 'none' }}
+          className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"
+          style={{ background: card.gradient, padding: '28px 12px 10px' }}
         >
-          <span
-            className="font-avant font-bold uppercase select-none"
-            style={{
-              fontSize: 28,
-              letterSpacing: '0.05em',
-              color: 'transparent',
-              WebkitTextStroke: `1px rgba(242,237,227,0.14)`,
-              lineHeight: 1,
-            }}
-          >
-            {card.ghost}
-          </span>
+          <p className="caption-serif leading-snug text-cream/85">{card.notes}</p>
         </div>
         {/* Featured / Matcha badge */}
         {(card.featured || card.matcha) && (
           <div
-            className="absolute top-2.5 right-2.5 font-avant font-bold
-                       text-[8px] tracking-[0.25em] uppercase"
-            style={{
-              border: `1px solid ${card.matcha ? 'rgba(26,51,32,0.4)' : 'rgba(242,237,227,0.4)'}`,
-              padding: '2px 7px',
-              color: card.matcha ? 'rgba(26,51,32,0.65)' : 'rgba(242,237,227,0.7)',
-            }}
+            className={`absolute top-2.5 right-2.5 label px-1.75 py-0.5 rounded-full ${
+              card.matcha
+                ? 'text-forest bg-cream'
+                : 'text-orange bg-cream'
+            }`}
           >
             {card.matcha ? 'Matcha' : 'Signature'}
           </div>
@@ -87,29 +75,14 @@ function Card({ card, cardRef }) {
 
       {/* Card info */}
       <div className="px-4 pt-3" style={{ color: card.text }}>
-        <div className="text-[10px] font-avant tracking-[0.3em] uppercase opacity-60">
+        <div className="label opacity-60">
           {card.matcha ? 'Ceremonial grade' : card.origin}
         </div>
         <div className="font-avant font-bold text-[15px] mt-0.5">{card.region}</div>
-        <div className="text-[11px] mt-2 opacity-50">Altitude {card.altitude}</div>
-        <div className="text-[11px] opacity-40">{card.harvest}</div>
+        <div className="body-text-s mt-2 opacity-50">Altitude {card.altitude}</div>
+        <div className="body-text-s opacity-40">{card.harvest}</div>
       </div>
 
-      {/* Tasting notes — revealed on hover */}
-      <div
-        className="absolute bottom-0 left-0 right-0
-                   translate-y-full group-hover:translate-y-0
-                   transition-transform duration-300 ease-out"
-        style={{
-          background: `linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)`,
-          padding: '24px 16px 14px',
-        }}
-      >
-        <p className="font-serif italic text-[10px] leading-snug"
-           style={{ color: 'rgba(242,237,227,0.82)' }}>
-          {card.notes}
-        </p>
-      </div>
     </div>
   )
 }
@@ -120,7 +93,6 @@ export default function Coffees() {
   const headerRef    = useRef()
   const containerRef = useRef()
   const cardRefs     = useRef([])
-  const spotRef      = useRef()
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -160,80 +132,41 @@ export default function Coffees() {
     return () => ctx.revert()
   }, [])
 
-  // Mouse-follow spotlight
-  useEffect(() => {
-    const section = sectionRef.current
-    const spot    = spotRef.current
-    if (!section || !spot) return
-
-    let tx = 50, ty = 72, cx = 50, cy = 72, rafId
-
-    const update = () => {
-      cx += (tx - cx) * 0.08
-      cy += (ty - cy) * 0.08
-      spot.style.background = `radial-gradient(ellipse 60% 50% at ${cx}% ${cy}%, rgba(229,80,26,0.11) 0%, transparent 65%)`
-      rafId = requestAnimationFrame(update)
-    }
-    rafId = requestAnimationFrame(update)
-
-    const onMove = (e) => {
-      const rect = section.getBoundingClientRect()
-      tx = (e.clientX - rect.left) / rect.width  * 100
-      ty = (e.clientY - rect.top)  / rect.height * 100
-    }
-
-    section.addEventListener('mousemove', onMove, { passive: true })
-    return () => {
-      section.removeEventListener('mousemove', onMove)
-      cancelAnimationFrame(rafId)
-    }
-  }, [])
 
   return (
     <section ref={sectionRef} id="coffees" className="bg-charcoal relative overflow-hidden scroll-mt-14">
       <div className="container py-24">
-      {/* Dynamic mouse-follow spotlight */}
-      <div
-        ref={spotRef}
-        className="absolute pointer-events-none"
-        style={{
-          inset: 0,
-          background: 'radial-gradient(ellipse 60% 50% at 50% 72%, rgba(229,80,26,0.11) 0%, transparent 65%)',
-        }}
-      />
-
-      <h3 ref={labelRef} className="text-cream/50">
+      <h3 ref={labelRef} className="text-cream/60">
         Coffees
       </h3>
 
       <div ref={headerRef} className="mt-4 flex items-end justify-between">
         <h2
-          className="text-cream max-w-sm"
+          className="text-cream max-w-sm text-nowrap"
         >
           The collection.
         </h2>
-        <p className="text-cream/38 text-[12px] font-avant leading-relaxed max-w-xs text-right pb-1">
+        <p className="body-text-s text-cream/38 max-w-xs text-right pb-1">
           Three origins, one standard of excellence.<br />
           Each harvest tracked from soil to cup.
         </p>
       </div>
 
       <div ref={containerRef} className="relative mt-16 flex justify-center items-center gap-5">
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          viewBox="0 0 750 320"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 130 200 C 260 120, 490 240, 620 175"
-            fill="none"
-            stroke="#F2EDE3"
-            strokeWidth="1"
-            strokeOpacity="0.12"
-            strokeDasharray="5 7"
-          />
-        </svg>
-
+        <Sticker
+          src="/img/texture-glass.webp"
+          style={{ top: '8%', right: '4%' }}
+          initRotation={-14}
+          size={256}
+          delay={0.25}
+        />
+        <Sticker
+          src="/img/texture-tiles-green.webp"
+          style={{ bottom: '6%', left: '3%' }}
+          initRotation={9}
+          size={220}
+          delay={0.5}
+        />
         {CARDS.map((card, i) => (
           <Card
             key={i}

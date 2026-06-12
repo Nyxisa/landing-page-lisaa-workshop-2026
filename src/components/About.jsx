@@ -1,15 +1,14 @@
 import { useRef, useLayoutEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import CharReveal from './CharReveal'
 import FoamReveal from './FoamReveal'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function About() {
   const sectionRef  = useRef()
+  const titleRef    = useRef()
   const photoRef    = useRef()
-  const photoColRef = useRef()
   const ghostBgRef  = useRef()
   const statRefs    = useRef([])
 
@@ -24,6 +23,14 @@ export default function About() {
           duration: 0.85, stagger: 0.14, ease: 'power2.out',
           scrollTrigger: { trigger: sectionRef.current, start: 'top 76%' },
         }
+      )
+
+      // Title reveal
+      gsap.fromTo(
+        titleRef.current,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
+          scrollTrigger: { trigger: titleRef.current, start: 'top 82%' } }
       )
 
       // Count-up on numeric stats
@@ -74,6 +81,7 @@ export default function About() {
 
   return (
     <section ref={sectionRef} id="about" className="bg-forest relative overflow-hidden scroll-mt-14">
+      <FoamReveal containerRef={sectionRef} />
       <div className="container py-24">
 
       {/* Ghost background text */}
@@ -99,11 +107,11 @@ export default function About() {
 
         {/* Text column */}
         <div>
-          <CharReveal className="text-cream mb-10">
-            A lounge built on slowness.
-          </CharReveal>
+          <h2 ref={titleRef} className="text-cream mb-10" style={{ opacity: 0 }}>
+            A lounge built<br />on slowness.
+          </h2>
 
-          <div className="space-y-5 text-cream/50 text-[13px] leading-relaxed font-avant max-w-sm">
+          <div className="space-y-5 text-cream/50 body-text-m max-w-sm">
             <p>
               Still was born from a single conviction: that coffee deserves
               the same contemplative space as music, as light, as the ritual
@@ -111,14 +119,14 @@ export default function About() {
             </p>
             <p>
               We source directly from small-lot farmers in Ethiopia,
-              Colombia and Yemen — people who have cultivated their craft
+              Colombia and Yemen, people who have cultivated their craft
               for generations, in soils shaped by altitude and time.
             </p>
             <p>
               Each cup is prepared with the patience it deserves:
               hand-poured, precisely dosed, served without rush.
             </p>
-            <p className="font-serif italic text-cream/75 text-[15px] pt-2">
+            <p className="caption-serif text-cream/75 pt-2">
               "We don't serve coffee. We offer a moment."
             </p>
           </div>
@@ -131,8 +139,8 @@ export default function About() {
               { n: '∞',    label: 'Patience' },
             ].map((d, i) => (
               <div key={d.label}>
-                <div ref={el => { statRefs.current[i] = el }} className="font-serif italic text-cream text-2xl">{d.n}</div>
-                <div className="font-avant text-[10px] tracking-[0.25em] uppercase text-cream/35 mt-1">
+                <div ref={el => { statRefs.current[i] = el }} className="stats-number text-cream">{d.n}</div>
+                <div className="label text-cream/35 mt-1">
                   {d.label}
                 </div>
               </div>
@@ -141,10 +149,9 @@ export default function About() {
         </div>
 
         {/* Photo column */}
-        <div ref={photoColRef} className="space-y-3 relative">
-          <FoamReveal containerRef={photoColRef} />
+        <div className="space-y-3 relative">
           {/* Main "photo" */}
-          <div className="rounded-xl overflow-hidden relative" style={{ aspectRatio: '4/3' }}>
+          <div className="rounded-2xl overflow-hidden relative" style={{ aspectRatio: '4/3' }}>
             <div
               ref={photoRef}
               style={{
@@ -190,11 +197,11 @@ export default function About() {
 
             {/* Caption */}
             <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
-              <span className="font-serif italic text-cream/30 text-[11px]">
-                Still coffee — Paris, 2026
+              <span className="caption-serif text-cream/30">
+                Still coffee, Paris, 2026
               </span>
               <span
-                className="font-avant text-[8px] tracking-[0.25em] uppercase text-cream/18 border border-cream/12 px-2 py-1"
+                className="label text-cream/18 border border-cream/12 px-2 py-1"
               >
                 Lounge
               </span>
@@ -204,8 +211,8 @@ export default function About() {
           {/* Small caption card */}
           <div className="flex items-center gap-4 px-1">
             <div className="w-1 h-1 rounded-full bg-orange/60" />
-            <p className="font-avant text-[11px] text-cream/35 tracking-wider">
-              Specialty grade only — direct trade sourcing since 2018
+            <p className="body-text-s text-cream/35">
+              Specialty grade only, direct trade sourcing since 2018
             </p>
           </div>
 
@@ -216,10 +223,10 @@ export default function About() {
 { label: 'Origin beans',     bg: "url('/img/texture-coffee.webp') center/cover no-repeat" },
 
             ].map(p => (
-              <div key={p.label} className="rounded-lg overflow-hidden relative" style={{ aspectRatio: '4/3' }}>
+              <div key={p.label} className="rounded-xl overflow-hidden relative" style={{ aspectRatio: '4/3' }}>
                 <div className="w-full h-full" style={{ background: p.bg }} />
                 <div className="absolute inset-0 flex items-end p-2.5">
-                  <span className="font-avant text-[8px] tracking-[0.18em] uppercase text-cream/35">
+                  <span className="label text-cream/35">
                     {p.label}
                   </span>
                 </div>

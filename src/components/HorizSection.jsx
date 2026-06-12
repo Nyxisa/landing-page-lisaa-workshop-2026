@@ -19,13 +19,20 @@ const ORIGINS_PINS = [
     harvest: 'Nov – Jan', note: 'Jasmine, blueberry, floral clarity',
   },
   {
-    name: 'Yemen', region: 'Mocha', altitude: '1,500 – 2,000 m',
-    harvest: 'Oct – Dec', note: 'Wild fermented fruit, ancient terroir',
+    name: 'Japan', region: 'Uji, Kyoto', altitude: '50 – 300 m',
+    harvest: 'Apr – May', note: 'Ceremonial matcha, umami depth, spring vegetal',
   },
 ]
 
 const TIMBRE_START = [47, -51, 45, -71, 52]
 const TIMBRE_END   = [-13, 9, -15, 11, -8]
+
+const BG_DECOS = [
+  { src: '/img/stamp-3.webp',  w: 90,  pos: { top: '32%',    left: '32%'   }, rot: -8,  opacity: 0.21, delay: 5.0 },
+  { src: '/img/letter-4.webp', w: 240, pos: { bottom: '30%',  right: '30%'  }, rot: 22,  opacity: 0.17, delay: 5.3 },
+  { src: '/img/letter-5.webp', w: 180, pos: { top: '40%',     right: '30%' }, rot: -17, opacity: 0.14, delay: 5.6 },
+  { src: '/img/letter-6.webp', w: 280, pos: { bottom: '16%', left: '30%'  }, rot: 8,   opacity: 0.23, delay: 5.9 },
+]
 
 function CharSpans({ text }) {
   return useMemo(() => (
@@ -43,16 +50,10 @@ function StampCard({ pin }) {
   return (
     <div style={{ position: 'relative' }}>
       <div style={{
-        position: 'absolute', bottom: -8, left: '50%',
-        transform: 'translateX(-50%)', width: 0, height: 0,
-        borderLeft: '7px solid transparent', borderRight: '7px solid transparent',
-        borderTop: '8px solid rgba(248,245,230,0.92)',
-      }} />
-      <div style={{
         width: 164, background: '#F8F5E6', color: '#25432B',
         padding: '13px 14px', lineHeight: 1.5, position: 'relative',
-        boxShadow: '4px 10px 28px rgba(0,0,0,0.55)',
-        outline: '2px dashed rgba(37,67,43,0.18)', outlineOffset: '4px',
+        borderRadius: 8,
+        filter: 'drop-shadow(1px 2px 4px rgba(0,0,0,0.1)) drop-shadow(4px 8px 16px rgba(0,0,0,0.04))',
         fontFamily: 'var(--font-avant)',
       }}>
         <div style={{ fontSize: 8, letterSpacing: '0.35em', textTransform: 'uppercase', opacity: 0.42 }}>
@@ -103,9 +104,16 @@ export default function HorizSection() {
   const origSubtitleRef = useRef()
   const origStampRefs   = useRef([null, null, null])
   const origStatsRef    = useRef()
+  const bgDecoRefs      = useRef([null, null, null, null])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
+
+      /* Init bg deco rotations before any animation */
+      bgDecoRefs.current.forEach((el, i) => {
+        if (!el) return
+        gsap.set(el, { rotation: BG_DECOS[i].rot })
+      })
 
       /* ── 1. Zoom à l'entrée : seul innerRef est mis à l'échelle ──── */
       gsap.fromTo(
@@ -212,6 +220,17 @@ export default function HorizSection() {
         5.0
       )
 
+      // [5.0 → 5.9] Background decorations — staggered fade-in
+      bgDecoRefs.current.forEach((el, i) => {
+        if (!el) return
+        tl.fromTo(
+          el,
+          { opacity: 0 },
+          { opacity: BG_DECOS[i].opacity, ease: 'power2.out', duration: 0.8 },
+          BG_DECOS[i].delay
+        )
+      })
+
     }, wrapRef)
 
     return () => ctx.revert()
@@ -221,7 +240,7 @@ export default function HorizSection() {
     /* wrapRef — 100vh fixe, transparent (pipes visibles), jamais transformé, sert de conteneur pin */
     <div
       ref={wrapRef}
-      className="overflow-hidden"
+      className="overflow-hidden z-20"
       style={{ height: '100vh' }}
     >
       {/* innerRef — seul élément à recevoir le scale du zoom */}
@@ -263,7 +282,7 @@ export default function HorizSection() {
             >
               <h3
                 ref={labelRef}
-                className="text-maroon mb-8"
+                className="text-maroon/60 mb-8"
                 style={{ opacity: 0 }}
               >
                 Philosophy
@@ -334,33 +353,49 @@ export default function HorizSection() {
 
           {/* ══ PANNEAU 2 — ORIGINS ════════════════════════════════════ */}
           <div
-            className="shrink-0 bg-charcoal relative"
+            className="shrink-0 bg-sand relative"
             id="origins"
             style={{ width: '100vw', height: '100vh' }}
           >
+            {/* Background decorative images */}
+            {BG_DECOS.map((d, i) => (
+              <img
+                key={`bg${i}`}
+                ref={el => { bgDecoRefs.current[i] = el }}
+                src={d.src}
+                alt=""
+                draggable={false}
+                style={{
+                  position: 'absolute', width: d.w, height: 'auto',
+                  ...d.pos,
+                  opacity: 0, zIndex: 0,
+                  pointerEvents: 'none', userSelect: 'none',
+                }}
+              />
+            ))}
             <div
               className="container flex flex-col pb-16 h-full"
-              style={{ paddingTop: '5rem' }}
+              style={{ paddingTop: '8rem' }}
             >
               {/* Header */}
-              <div className="flex items-end justify-between mb-6 shrink-0">
+              <div className="flex gap-4 mb-6 flex-col shrink-0">
                 <div>
                   <h3
                     ref={origLabelRef}
-                    className="text-sky"
+                    className="text-orange/60"
                     style={{ opacity: 0 }}
                   >
                     Origins
                   </h3>
-                  <p
+                  <h2
                     ref={origSubtitleRef}
-                    className="mt-2 text-cream/35 text-[12px]"
+                    className="mt-2 text-orange"
                     style={{ opacity: 0 }}
                   >
-                    Three origins. Three terroirs. One cup.
-                  </p>
+                    Three origins in a single place.
+                  </h2>
                 </div>
-                <p className="text-cream/22 text-[11px] font-avant tracking-[0.1em] text-right">
+                <p className="body-text-s text-charcoal/40">
                   Direct trade · Small-lot · Traceable
                 </p>
               </div>
@@ -371,7 +406,7 @@ export default function HorizSection() {
                 {/* Colonne gauche — chiffres */}
                 <div
                   ref={origStatsRef}
-                  className="shrink-0 flex flex-col justify-center gap-10 border-r border-cream/8 pr-8"
+                  className="shrink-0 flex flex-col justify-center gap-10 border-r border-charcoal/15 pr-8"
                   style={{ width: 140, opacity: 0 }}
                 >
                   {[
@@ -380,8 +415,8 @@ export default function HorizSection() {
                     { n: '100%', label: 'Direct trade' },
                   ].map(stat => (
                     <div key={stat.label}>
-                      <div className="font-serif italic text-sky text-2xl leading-none">{stat.n}</div>
-                      <div className="font-avant text-[9px] tracking-[0.28em] uppercase text-cream/30 mt-2">
+                      <div className="stats-number text-orange">{stat.n}</div>
+                      <div className="label text-charcoal/45 mt-2">
                         {stat.label}
                       </div>
                     </div>

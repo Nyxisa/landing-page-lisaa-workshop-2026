@@ -1,16 +1,16 @@
 import { useRef, useEffect, useLayoutEffect } from 'react'
 import gsap from 'gsap'
-import HeroFoam from './HeroFoam'
 
-// Speed: 0 = fixed in viewport | 1 = scrolls normally | negative = faster than scroll
+// Speed: 0 = fixe | 1 = scroll normal | négatif = monte plus vite que le scroll
 const LAYERS = [
-  { src: '/img/Coffee-beans-3.webp', speed: 0.60, zIndex: 5  }, // far bg  — monte à 40% vitesse
-  { src: '/img/Coffee-beans-2.webp', speed: 0.40, zIndex: 6  }, // mid bg  — monte à 60% vitesse
-  { src: '/img/Coffee-beans-1.webp', speed: 0.15, zIndex: 20 }, // devant  — monte à 85% vitesse
+  { src: '/img/Coffee-beans-3.webp', speed: 0.48, zIndex: 5  }, // far bg  — très lent
+  { src: '/img/Coffee-beans-2.webp', speed: 0.38, zIndex: 6  }, // mid bg
+  { src: '/img/Coffee-beans-1.webp', speed: 0.18, zIndex: 20 }, // devant  — quasi fixe
 ]
-const LOGO_SPEED = -0.4  // logo monte à 140% vitesse → s'échappe vers le haut en premier
+const LOGO_SPEED  = -0.55  // logo s'échappe vers le haut plus vite
+const LERP_FACTOR = 0.09   // inertie : 0 = aucune réactivité, 1 = direct
 
-const BAR_COUNT = 4
+const BAR_COUNT = 3
 
 export default function Hero() {
   const refs    = useRef([])
@@ -29,31 +29,58 @@ export default function Hero() {
   }, [])
 
   useEffect(() => {
+    let rawY    = window.scrollY
+    let smoothY = rawY
+    let rafId
+
     const onScroll = () => {
-      const y        = window.scrollY
-      const progress = Math.min(1, y / window.innerHeight) // 0→1 pendant la hero
+      rawY = window.scrollY
 
-      // parallax images + logo
-      refs.current.forEach((el, i) => {
-        if (el) el.style.transform = `translateY(${y * LAYERS[i].speed}px)`
-      })
-      if (logoRef.current)
-        logoRef.current.style.transform = `translateY(${y * LOGO_SPEED}px)`
-
-      // remplissage des barres : chaque barre couvre 1/4 du scroll
+      // barres — réactivité directe, pas besoin d'inertie
+      const progress = Math.min(1, rawY / (window.innerHeight * 0.38))
       barRefs.current.forEach((el, i) => {
         if (!el) return
         const fill = Math.min(1, Math.max(0, (progress - i / BAR_COUNT) * BAR_COUNT))
-        el.style.transform = `scaleX(${fill})`
+        el.style.opacity = 0.2 + fill * 0.6
       })
     }
 
+    const tick = () => {
+      // lerp : smoothY se rapproche de rawY à chaque frame → léger retard naturel
+      smoothY += (rawY - smoothY) * LERP_FACTOR
+
+      refs.current.forEach((el, i) => {
+        if (el) el.style.transform = `translateY(${smoothY * LAYERS[i].speed}px)`
+      })
+      if (logoRef.current)
+        logoRef.current.style.transform = `translateY(${smoothY * LOGO_SPEED}px)`
+
+      rafId = requestAnimationFrame(tick)
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    rafId = requestAnimationFrame(tick)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      cancelAnimationFrame(rafId)
+    }
   }, [])
 
   return (
     <section className="relative h-screen overflow-hidden bg-forest z-20">
+
+      {/* ── Texture overlay ── */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 3,
+          backgroundImage: `url('/img/texture-tiles.webp')`,
+          backgroundSize: 'cover',
+          opacity: 0.1,
+          mixBlendMode: 'luminosity',
+        }}
+      />
 
       {/* ── 3 images — même position, même taille, seuls speed + z-index changent ── */}
       {LAYERS.map((layer, i) => (
@@ -84,10 +111,7 @@ export default function Hero() {
         }}
       />
 
-      {/* ── Coffee foam/crema layer ── */}
-      <HeroFoam />
-
-      {/* ── Logo + tagline ── */}
+{/* ── Logo + tagline ── */}
       <div ref={logoRef} className="absolute left-0 right-0 pb-14" style={{ zIndex: 10, top: '60%', willChange: 'transform' }}>
         <div className="container">
           <h1>
@@ -103,38 +127,27 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ── Scroll indicator ── */}
+      {/* ── Scroll indicator + barres — bas droite ── */}
       <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-        style={{ zIndex: 25 }}
+        className="absolute bottom-8 right-12 flex flex-col items-end gap-3"
+        style={{ zIndex: 30 }}
       >
-        <span className="font-avant text-[9px] tracking-[0.45em] uppercase text-cream/30">
-          Scroll
+        <span
+          className="font-serif italic text-cream/35"
+          style={{ fontSize: 20 }}
+        >
+          scroll
         </span>
-        <div className="w-px h-8 bg-linear-to-b from-cream/30 to-transparent scroll-line-anim" />
-      </div>
-
-      {/* ── 4 barres de progression scroll ── */}
-      <div
-        className="absolute right-12 flex flex-col gap-3"
-        style={{ zIndex: 30, top: '50%', transform: 'translateY(-50%)' }}
-      >
-        {Array.from({ length: BAR_COUNT }, (_, i) => (
-          <div
-            key={i}
-            className="relative overflow-hidden"
-            style={{ width: 32, height: 2 }}
-          >
-            {/* track — fond très discret */}
-            <div className="absolute inset-0 bg-cream/15 rounded-full" />
-            {/* fill — se déploie de gauche à droite */}
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: BAR_COUNT }, (_, i) => (
             <div
+              key={i}
               ref={el => barRefs.current[i] = el}
-              className="absolute inset-0 bg-cream/80 rounded-full origin-left"
-              style={{ transform: 'scaleX(0)', willChange: 'transform' }}
+              className="bg-cream rounded-full"
+              style={{ width: 32, height: 2, opacity: 0.2, willChange: 'opacity' }}
             />
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
     </section>

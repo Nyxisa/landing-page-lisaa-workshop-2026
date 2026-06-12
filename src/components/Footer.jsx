@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger)
 const COLS = [
   {
     head: 'Origins',
-    links: ['Colombia — Huila', 'Ethiopia — Yirgacheffe', 'Yemen — Mocha', 'About sourcing', 'Farm partners'],
+    links: ['Colombia • Huila', 'Ethiopia • Yirgacheffe', 'Yemen • Mocha', 'About sourcing', 'Farm partners'],
   },
   {
     head: 'Visit',
@@ -61,29 +61,28 @@ export default function Footer() {
       {/* Newsletter */}
       <div className="mb-20 grid grid-cols-2 gap-16 items-end border-b border-cream/8 pb-20">
         <div>
-          <h3 className="text-cream mb-3">Origin dispatches</h3>
-          <p className="text-cream/38 text-[12px] font-avant leading-relaxed max-w-xs">
-            Seasonal arrivals, farm stories, tasting notes — straight to your inbox. No noise.
+          <h3 className="text-cream/60 mb-3">Origin dispatches</h3>
+          <p className="body-text-s text-cream/38 max-w-xs">
+            Seasonal arrivals, farm stories, tasting notes, straight to your inbox. No noise.
           </p>
         </div>
         <form
-          className="flex gap-3 items-center"
+          className="flex gap-3 items-stretch"
           onSubmit={e => e.preventDefault()}
         >
           <input
             type="email"
             placeholder="your@email.com"
-            className="flex-1 bg-transparent border border-cream/20 text-cream
-                       font-avant text-[12px] px-4 py-3 outline-none
+            className="flex-1 bg-transparent border border-cream/20 text-cream rounded-full
+                       body-text-s px-4 py-3 outline-none
                        placeholder:text-cream/25 focus:border-cream/45
                        transition-colors duration-200"
           />
           <button
             type="submit"
-            className="px-6 py-3 bg-orange text-cream font-avant font-bold
-                       text-[11px] tracking-[0.18em] uppercase
-                       hover:bg-cream hover:text-charcoal transition-colors duration-300
-                       shrink-0"
+            className="px-6 flex items-center bg-maroon text-cream rounded-full shrink-0
+                       text-sm font-avant font-bold italic uppercase tracking-wider
+                       hover:bg-cream hover:text-maroon transition-colors duration-300"
           >
             Subscribe
           </button>
@@ -94,15 +93,13 @@ export default function Footer() {
       <div className="grid grid-cols-3 gap-12 mb-24">
         {COLS.map(col => (
           <div key={col.head}>
-            <h3 className="text-cream mb-6">{col.head}</h3>
+            <h3 className="text-cream/60 mb-6">{col.head}</h3>
             <ul className="space-y-3">
               {col.links.map(item => (
                 <li key={item}>
                   <a
                     href="#"
-                    className="text-[12px] text-cream/42 font-avant
-                               hover:text-cream/85 transition-colors duration-200
-                               leading-relaxed block"
+                    className="body-text-s text-cream/42 hover:text-cream/85 transition-colors duration-200 block"
                   >
                     {item}
                   </a>
@@ -115,10 +112,10 @@ export default function Footer() {
 
       {/* Copyright row */}
       <div className="border-t border-cream/8 pt-6 pb-4 flex items-center justify-between">
-        <span className="font-avant text-[10px] tracking-[0.15em] text-cream/22 uppercase">
-          © 2026 Still Coffee — All rights reserved
+        <span className="label text-cream/22">
+          © 2026 Still Coffee • All rights reserved
         </span>
-        <span className="font-avant text-[10px] tracking-[0.15em] text-cream/18 uppercase">
+        <span className="label text-cream/18">
           Paris, France
         </span>
       </div>

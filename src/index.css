@@ -53,6 +53,44 @@ html, body {
   font-size: 24px;
 }
 
+/* ── Typography utilities ── */
+.body-text-m {
+  font-family: var(--font-avant);
+  font-size: 13px;
+  line-height: 1.65;
+  letter-spacing: -0.01em;
+}
+.body-text-m p { font-size: inherit; line-height: inherit; }
+
+.body-text-s {
+  font-family: var(--font-avant);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.body-text-s p { font-size: inherit; line-height: inherit; }
+
+.caption-serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 12px;
+}
+
+.stats-number {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.label {
+  font-family: var(--font-avant);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
 /* Content container — max-width centré, padding latéral minimum */
 .container {
   max-width: 1440px;

@@ -1,28 +1,12 @@
 import { useRef, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
+import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 
-// Continent SVG paths (equirectangular, viewBox 1000×500) — same data as Origins.jsx
-const LAND = [
-  "M 150,80 L 200,53 L 260,52 L 292,70 L 314,92 L 300,115 L 316,141 L 322,164 L 298,186 L 278,212 L 263,233 L 248,260 L 240,282 L 224,296 L 206,294 L 196,310 L 184,331 L 178,352 L 186,372 L 184,390 L 174,382 L 160,362 L 148,340 L 140,316 L 132,288 L 119,261 L 106,237 L 104,212 L 113,190 L 126,170 L 131,148 L 127,120 L 131,98 L 140,84 Z",
-  "M 355,30 L 380,20 L 407,22 L 430,33 L 440,47 L 430,60 L 410,65 L 388,62 L 366,50 Z",
-  "M 225,202 L 244,200 L 260,205 L 258,212 L 240,215 L 225,210 Z",
-  "M 281,222 L 298,218 L 320,221 L 347,230 L 370,241 L 398,255 L 412,272 L 412,288 L 406,312 L 397,334 L 388,356 L 377,378 L 362,398 L 346,411 L 329,415 L 312,409 L 302,394 L 297,373 L 294,349 L 291,325 L 282,302 L 271,278 L 267,256 L 272,240 Z",
-  "M 474,149 L 482,133 L 488,122 L 503,113 L 518,108 L 534,104 L 550,98 L 560,88 L 564,77 L 557,67 L 540,64 L 522,68 L 507,77 L 494,90 L 483,104 L 477,119 L 474,136 Z",
-  "M 437,65 L 447,60 L 457,63 L 458,72 L 448,76 L 438,72 Z",
-  "M 484,155 L 510,149 L 530,150 L 547,159 L 560,173 L 568,192 L 576,212 L 576,232 L 568,253 L 556,271 L 545,290 L 540,310 L 542,328 L 543,344 L 532,360 L 516,372 L 498,374 L 480,363 L 464,346 L 454,326 L 450,302 L 451,277 L 455,257 L 452,235 L 457,214 L 463,196 L 470,178 L 476,162 Z",
-  "M 588,300 L 592,288 L 598,295 L 598,315 L 593,326 L 587,318 Z",
-  "M 608,157 L 630,151 L 650,156 L 665,166 L 668,182 L 660,198 L 645,208 L 627,212 L 612,207 L 603,193 L 604,173 Z",
-  "M 680,159 L 705,153 L 728,155 L 748,164 L 753,181 L 749,198 L 738,215 L 725,229 L 710,233 L 695,227 L 683,213 L 677,194 Z",
-  "M 530,145 L 572,136 L 618,127 L 664,118 L 712,110 L 758,106 L 804,104 L 844,108 L 878,117 L 906,129 L 928,143 L 947,158 L 958,175 L 960,192 L 952,210 L 932,222 L 904,230 L 872,236 L 838,237 L 800,232 L 764,223 L 734,216 L 712,220 L 695,228 L 676,225 L 657,215 L 640,208 L 623,210 L 610,207 L 603,194 L 604,174 L 608,157 L 589,152 L 569,141 L 548,138 L 527,141 L 507,145 L 488,150 L 475,150 L 474,148 L 480,133 L 504,113 L 534,104 L 564,77 L 542,65 L 510,68 L 490,90 L 475,135 Z",
-  "M 876,120 L 886,112 L 897,118 L 897,130 L 884,136 Z",
-  "M 818,292 L 848,282 L 878,276 L 906,283 L 924,298 L 926,318 L 918,338 L 904,352 L 887,361 L 864,363 L 838,354 L 818,340 L 812,320 Z",
-]
-
 const ORIGIN_COORDS = [
-  { lat: 2.0,  lon: -75.8 }, // Colombia
-  { lat: 6.1,  lon:  38.4 }, // Ethiopia
-  { lat: 14.5, lon:  44.2 }, // Yemen
+  { lat: 2.0,  lon: -75.8, name: 'Colombia' },
+  { lat: 6.1,  lon:  38.4, name: 'Ethiopia' },
+  { lat: 34.9, lon: 135.8, name: 'Japan'    },
 ]
 
 function latLonToXYZ(lat, lon, r = 1.37) {
@@ -35,134 +19,127 @@ function latLonToXYZ(lat, lon, r = 1.37) {
   ]
 }
 
-function buildTexture() {
-  const TW = 2048, TH = 1024
-  const c   = document.createElement('canvas')
-  c.width   = TW; c.height = TH
-  const ctx = c.getContext('2d')
-
-  // Deep ocean
-  ctx.fillStyle = '#101A13'
-  ctx.fillRect(0, 0, TW, TH)
-
-  // Graticule
-  ctx.strokeStyle = 'rgba(195,175,100,0.055)'
-  ctx.lineWidth = 0.6
-  for (let lat = -60; lat <= 60; lat += 30) {
-    const y = (90 - lat) / 180 * TH
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(TW, y); ctx.stroke()
-  }
-  for (let lon = -150; lon <= 180; lon += 30) {
-    const x = (lon + 180) / 360 * TW
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, TH); ctx.stroke()
-  }
-  // Equator highlight
-  ctx.strokeStyle = 'rgba(195,175,100,0.1)'
-  ctx.beginPath(); ctx.moveTo(0, TH / 2); ctx.lineTo(TW, TH / 2); ctx.stroke()
-
-  // Continents (scale 1000×500 → 2048×1024)
-  ctx.save()
-  ctx.scale(TW / 1000, TH / 500)
-  ctx.fillStyle = '#1E3024'
-  ctx.strokeStyle = 'rgba(195,175,90,0.25)'
-  ctx.lineWidth = 0.5
-  for (const d of LAND) {
-    const p = new Path2D(d)
-    ctx.fill(p)
-    ctx.stroke(p)
-  }
-  ctx.restore()
-
-  return c
-}
-
 function buildShadowTexture() {
   const c = document.createElement('canvas')
   c.width = c.height = 256
   const ctx = c.getContext('2d')
   const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128)
-  g.addColorStop(0,   'rgba(0,0,0,0.72)')
-  g.addColorStop(0.5, 'rgba(0,0,0,0.28)')
-  g.addColorStop(1,   'rgba(0,0,0,0)')
+  g.addColorStop(0,    'rgba(0,0,0,0.90)')
+  g.addColorStop(0.40, 'rgba(0,0,0,0.52)')
+  g.addColorStop(0.70, 'rgba(0,0,0,0.15)')
+  g.addColorStop(1,    'rgba(0,0,0,0)')
   ctx.fillStyle = g
   ctx.fillRect(0, 0, 256, 256)
   return c
 }
 
+function buildGlowTexture() {
+  const c = document.createElement('canvas')
+  c.width = c.height = 512
+  const ctx = c.getContext('2d')
+  const g = ctx.createRadialGradient(256, 256, 0, 256, 256, 256)
+  g.addColorStop(0,    'rgba(210,188,152,0.28)')
+  g.addColorStop(0.38, 'rgba(210,188,152,0.16)')
+  g.addColorStop(0.65, 'rgba(210,188,152,0.06)')
+  g.addColorStop(1,    'rgba(210,188,152,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 512, 512)
+  return c
+}
+
 function GlobeScene({ rotRef }) {
-  const groupRef  = useRef()
-  const shadowRef = useRef()
+  const groupRef    = useRef()
+  const shadowRef   = useRef()
+  const globeMeshRef = useRef()
 
   const texture = useMemo(() => {
-    const tex = new THREE.CanvasTexture(buildTexture())
+    const tex = new THREE.TextureLoader().load('/img/earth-map.webp')
+    tex.colorSpace = THREE.SRGBColorSpace
+    tex.anisotropy = 16
     return tex
   }, [])
 
-  const shadowTex = useMemo(() => {
-    const tex = new THREE.CanvasTexture(buildShadowTexture())
-    return tex
-  }, [])
+  const shadowTex = useMemo(() => new THREE.CanvasTexture(buildShadowTexture()), [])
+  const glowTex   = useMemo(() => new THREE.CanvasTexture(buildGlowTexture()),   [])
 
   useFrame((state) => {
     if (!groupRef.current) return
     if (rotRef) groupRef.current.rotation.y = rotRef.current
 
-    // Légère oscillation verticale (float)
     const t = state.clock.elapsedTime
     const f = Math.sin(t * 0.55) * 0.055
     groupRef.current.position.y = f
 
-    // L'ombre réagit au float
     if (shadowRef.current) {
-      const s = 1 - f * 0.1
+      const s = 1 - f * 0.08
       shadowRef.current.scale.set(s, s, 1)
-      shadowRef.current.material.opacity = 0.34 - f * 0.07
+      shadowRef.current.material.opacity = 0.52 - f * 0.04
     }
   })
 
   return (
     <>
-      <ambientLight intensity={0.38} />
-      <directionalLight position={[5, 3, 4]} intensity={1.2} color="#fff8f0" />
-      <pointLight position={[-5, -2, -4]} intensity={0.28} color="#162518" />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[2, 4, 8]} intensity={3} />
+      <pointLight position={[-4, 1, -3]} intensity={4} color="#D2BC98" />
 
-      {/* Ombre portée au sol — plan aplati en z pour rester dans le frustum caméra */}
+      {/* Ombre au sol — plus prononcée et circulaire */}
       <mesh ref={shadowRef} position={[0, -1.52, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[2.4, 0.8]} />
-        <meshBasicMaterial
-          map={shadowTex}
-          transparent
-          opacity={0.38}
-          depthWrite={false}
-        />
+        <planeGeometry args={[3.2, 3.2]} />
+        <meshBasicMaterial map={shadowTex} transparent opacity={0.52} depthWrite={false} />
+      </mesh>
+
+      {/* Halo circulaire flou — plan fixe derrière le globe */}
+      <mesh position={[0, 0, -1.45]}>
+        <planeGeometry args={[5.2, 5.2]} />
+        <meshBasicMaterial map={glowTex} transparent depthWrite={false} />
       </mesh>
 
       <group ref={groupRef}>
-        {/* Globe */}
-        <mesh>
+        <mesh ref={globeMeshRef}>
           <sphereGeometry args={[1.35, 72, 36]} />
-          <meshStandardMaterial map={texture} roughness={0.82} metalness={0.04} />
+          <meshStandardMaterial map={texture} roughness={1} metalness={0.1} />
         </mesh>
 
-        {/* Atmosphere */}
-        <mesh>
-          <sphereGeometry args={[1.43, 32, 16]} />
-          <meshStandardMaterial
-            transparent opacity={0.065}
-            color="#3D8A50"
-            side={THREE.BackSide}
-            depthWrite={false}
-          />
-        </mesh>
-
-        {/* Orange origin dots */}
         {ORIGIN_COORDS.map((o, i) => {
           const [x, y, z] = latLonToXYZ(o.lat, o.lon)
           return (
-            <mesh key={i} position={[x, y, z]}>
-              <sphereGeometry args={[0.022, 8, 8]} />
-              <meshBasicMaterial color="#E5501A" />
-            </mesh>
+            <group key={i} position={[x, y, z]}>
+              {/* Outer cream halo ring */}
+              <mesh>
+                <sphereGeometry args={[0.048, 10, 10]} />
+                <meshBasicMaterial color="#F8F5E6" transparent opacity={0.14} depthWrite={false} />
+              </mesh>
+              {/* Orange border */}
+              <mesh>
+                <sphereGeometry args={[0.032, 10, 10]} />
+                <meshBasicMaterial color="#E5501A" />
+              </mesh>
+              {/* Inner cream dot */}
+              <mesh>
+                <sphereGeometry args={[0.016, 10, 10]} />
+                <meshBasicMaterial color="#F8F5E6" />
+              </mesh>
+              {/* Floating country label */}
+              <Html
+                position={[0.62, 0, 0]}
+                occlude={[globeMeshRef]}
+                style={{ pointerEvents: 'none', userSelect: 'none' }}
+              >
+                <div className='caption-serif' style={{
+                  transform: 'translateY(-50%)',
+                  color: 'var(--color-orange)',
+                  whiteSpace: 'nowrap',
+                  background: 'var(--color-cream)',
+                  padding: '2px 12px',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(248,245,230,0.16)',
+                  fontSize: '16px',
+                }}>
+                  {o.name}
+                </div>
+              </Html>
+            </group>
           )
         })}
       </group>
@@ -172,14 +149,18 @@ function GlobeScene({ rotRef }) {
 
 export default function Globe3D({ rotRef, style }) {
   return (
-    <div style={{ width: '100%', height: '100%', ...style }}>
-      <Canvas
-        camera={{ position: [0, 0, 4.4], fov: 42 }}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent', width: '100%', height: '100%' }}
-      >
-        <GlobeScene rotRef={rotRef} />
-      </Canvas>
+    // Wrapper layout — occupe l'espace normal, overflow visible pour laisser déborder les effets
+    <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'visible', ...style }}>
+      {/* Canvas élargi : inset négatif = shadow/halo ne sont plus rognés */}
+      <div style={{ position: 'absolute', inset: '-10%', pointerEvents: 'none' }}>
+        <Canvas
+          camera={{ position: [0, 0, 6], fov: 42 }}
+          gl={{ antialias: true, alpha: true }}
+          style={{ background: 'transparent', width: '100%', height: '100%' }}
+        >
+          <GlobeScene rotRef={rotRef} />
+        </Canvas>
+      </div>
     </div>
   )
 }

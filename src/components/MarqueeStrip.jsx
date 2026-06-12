@@ -36,8 +36,8 @@ export default function MarqueeStrip({ variant = 'dark' }) {
         {[0, 1].map(n => (
           <span
             key={n}
-            className="font-avant font-bold uppercase inline-block px-2"
-            style={{ fontSize: 10, letterSpacing: '0.28em', color }}
+            className="label inline-block px-2"
+            style={{ color }}
           >
             {text}
           </span>

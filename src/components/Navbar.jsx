@@ -38,7 +38,7 @@ export default function Navbar() {
     <nav
       ref={navRef}
       className="fixed top-0 inset-x-0 z-50 h-20
-                 bg-maroon/85 backdrop-blur-md border-b border-cream/5"
+                 bg-maroon/85 backdrop-blur-md border-b border-sand/20"
     >
       <div className="container flex items-center justify-between h-full">
       {/* Logo — two SVGs with gap-hover animation */}
@@ -63,7 +63,8 @@ export default function Navbar() {
         <a href="#" className="nav-link text-cream hover:text-sky transition-all duration-400">
           Merch
         </a>
-        <a href="#coffees" className="nav-link bg-sky text-maroon px-4 py-1 rounded-full hover:bg-cream transition-colors duration-400">
+          <a href="#coffees" className="nav-link border-2 text-cream px-4 py-2 rounded-full hover:bg-cream hover:text-maroon
+         transition-colors duration-400">
           Find your next coffee
         </a>
       </div>

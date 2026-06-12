@@ -25,78 +25,110 @@ function buildPath(points, r = 16) {
 }
 
 export default function SidePipe() {
-  const fillRef = useRef()
+  const svgRef   = useRef()
+  const fillRef  = useRef()
+  const ghostRef = useRef()
 
   useEffect(() => {
-    const H = window.innerHeight
-    const W = window.innerWidth
+    let length     = 0
+    let isFull     = false
+    let targetProg = 0
+    let currentProg = 0
+    let rafId
 
-    // ~11 coudes orthogonaux irréguliers dans la marge gauche (12–70px)
-    // Dernier coude discret : +30px vers la droite seulement
-    const d = buildPath([
-      { x: 28,  y: 0        },
-      { x: 28,  y: H * 0.07 }, { x: 56,  y: H * 0.07 },
-      { x: 56,  y: H * 0.15 }, { x: 14,  y: H * 0.15 },
-      { x: 14,  y: H * 0.24 }, { x: 66,  y: H * 0.24 },
-      { x: 66,  y: H * 0.33 }, { x: 20,  y: H * 0.33 },
-      { x: 20,  y: H * 0.42 }, { x: 60,  y: H * 0.42 },
-      { x: 60,  y: H * 0.51 }, { x: 12,  y: H * 0.51 },
-      { x: 12,  y: H * 0.60 }, { x: 70,  y: H * 0.60 },
-      { x: 70,  y: H * 0.69 }, { x: 24,  y: H * 0.69 },
-      { x: 24,  y: H * 0.78 }, { x: 52,  y: H * 0.78 },
-      { x: 52,  y: H * 0.86 }, { x: 18,  y: H * 0.86 },
-      { x: 18,  y: H * 0.93 }, { x: 48,  y: H * 0.93 }, // dernier coude : +30px seulement
-    ], 14)
+    const build = () => {
+      const pageH = document.body.scrollHeight
+      svgRef.current.setAttribute('height', pageH)
 
-    fillRef.current.setAttribute('d', d)
+      const d = buildPath([
+        { x: 28,   y: 0 },
+        { x: 28,   y: pageH * 0.94 },
+        { x: -140, y: pageH * 0.94 },
+      ], 22)
 
-    const length = fillRef.current.getTotalLength()
-    fillRef.current.style.strokeDasharray  = length
-    fillRef.current.style.strokeDashoffset = length // vide au départ
+      fillRef.current.setAttribute('d', d)
+      ghostRef.current.setAttribute('d', d)
 
-    let isFull = false
+      length = fillRef.current.getTotalLength()
+      fillRef.current.style.strokeDasharray  = length
+      fillRef.current.style.strokeDashoffset = length * (1 - currentProg)
+    }
 
-    const onScroll = () => {
-      const maxScroll = document.body.scrollHeight - window.innerHeight
-      if (!maxScroll) return
-      const rawProg    = Math.min(1, Math.max(0, window.scrollY / maxScroll))
-      const visualProg = Math.pow(rawProg, 1.2)
+    // Le tip est positionné 55% en dessous du haut du viewport → toujours visible
+    // La formule garantit rawProg = 1 à maxScroll
+    const calcProg = () => {
+      const pageH   = document.body.scrollHeight
+      const viewH   = window.innerHeight
+      const tipY    = window.scrollY + viewH * 0.55
+      return Math.min(1, Math.max(0, tipY / (pageH * 0.94)))
+    }
 
-      fillRef.current.style.strokeDashoffset = length * (1 - visualProg)
+    // Mise à jour fluide en rAF avec lerp
+    const animate = () => {
+      if (!length) { rafId = requestAnimationFrame(animate); return }
 
-      if (rawProg >= 0.97 && !isFull) {
+      currentProg += (targetProg - currentProg) * 0.10
+      fillRef.current.style.strokeDashoffset = length * (1 - currentProg)
+
+      if (currentProg >= 0.98 && !isFull) {
         isFull = true
         window.dispatchEvent(new CustomEvent('pipes-full'))
-      } else if (rawProg < 0.97 && isFull) {
+      } else if (currentProg < 0.98 && isFull) {
         isFull = false
         window.dispatchEvent(new CustomEvent('pipes-reset'))
       }
+
+      rafId = requestAnimationFrame(animate)
     }
 
+    const onScroll  = () => { targetProg = calcProg() }
+    const onResize  = () => { build(); targetProg = calcProg() }
+
+    build()
+    targetProg  = calcProg()
+    currentProg = targetProg  // pas d'animation d'intro au chargement
+    rafId = requestAnimationFrame(animate)
+
     window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll() // état initial
-    return () => window.removeEventListener('scroll', onScroll)
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
+    }
   }, [])
 
   return (
     <svg
+      ref={svgRef}
       aria-hidden="true"
       style={{
-        position: 'fixed',
+        position: 'absolute',
         top: 0,
         left: 0,
-        width: '100vw',
-        height: '100vh',
+        width: '80px',
         pointerEvents: 'none',
-        zIndex: 10, // sous hero/marquee (z-20) mais au-dessus des sections normales
+        zIndex: 10,
         overflow: 'visible',
       }}
     >
+      {/* Ghost — montre la totalité du chemin en filigrane */}
+      <path
+        ref={ghostRef}
+        stroke="var(--color-sand)"
+        strokeOpacity={0.13}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      {/* Fill — se remplit au scroll, le tip suit la position dans la page */}
       <path
         ref={fillRef}
         stroke="var(--color-sand)"
-        strokeOpacity={0.70}
-        strokeWidth={5}
+        strokeOpacity={0.72}
+        strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
