@@ -31,7 +31,7 @@ export default function CustomCursor() {
       gsap.to(dot,  { x: e.clientX, y: e.clientY, duration: 0.1,  ease: 'none',       overwrite: 'auto' })
     }
 
-    const grow   = () => { gsap.to(blob, { scale: 2.2, duration: 0.35, ease: 'power2.out' }); gsap.to(dot, { scale: 0, duration: 0.2 }) }
+    const grow   = () => { gsap.to(blob, { scale: 1.4, duration: 0.35, ease: 'power2.out' }); gsap.to(dot, { scale: 0, duration: 0.2 }) }
     const shrink = () => { gsap.to(blob, { scale: 1,   duration: 0.35, ease: 'power2.out' }); gsap.to(dot, { scale: 1, duration: 0.2 }) }
 
     const attachHover = () => {
@@ -62,9 +62,8 @@ export default function CustomCursor() {
         ref={blobRef}
         style={{
           position: 'fixed', top: 0, left: 0,
-          width: 64, height: 64, borderRadius: '50%',
-          backgroundColor: 'var(--color-orange)',
-          mixBlendMode: 'multiply',
+          width: 24, height: 24, borderRadius: '50%',
+          backgroundColor: 'rgba(255,255,255,0.4)',
           pointerEvents: 'none', zIndex: 9997,
           willChange: 'transform',
           opacity: 0.75,

@@ -25,8 +25,8 @@ export default function Navbar() {
     const onScroll = () => {
       const scrolled = window.scrollY > 60
       gsap.to(navRef.current, {
-        backgroundColor: scrolled ? 'rgba(41,41,41,0.97)' : 'rgba(41,41,41,0.72)',
-        duration: 0.35,
+        backgroundColor: scrolled ? 'var(--color-maroon)' : 'color-mix(in srgb, var(--color-maroon) 70%, transparent)',
+        duration: 0.4,
         overwrite: 'auto',
       })
     }
@@ -37,43 +37,36 @@ export default function Navbar() {
   return (
     <nav
       ref={navRef}
-      className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-10 h-14
-                 bg-charcoal/85 backdrop-blur-md border-b border-cream/5"
+      className="fixed top-0 inset-x-0 z-50 h-20
+                 bg-maroon/85 backdrop-blur-md border-b border-cream/5"
     >
+      <div className="container flex items-center justify-between h-full">
       {/* Logo — two SVGs with gap-hover animation */}
       <a href="#">
         <div
           ref={logoRef}
           className="flex items-center"
-          style={{ gap: 7, transition: 'gap 0.32s ease' }}
-          onMouseEnter={(e) => { e.currentTarget.style.gap = '16px' }}
-          onMouseLeave={(e) => { e.currentTarget.style.gap = '7px' }}
+          style={{ gap: 4, transition: 'gap 0.32s ease' }}
+          onMouseEnter={(e) => { e.currentTarget.style.gap = '12px' }}
+          onMouseLeave={(e) => { e.currentTarget.style.gap = '4px' }}
         >
-          <img src="/logo-still.svg"  alt="STILL"  style={{ height: 19, width: 'auto' }} />
-          <img src="/logo-coffee.svg" alt="coffee" style={{ height: 19, width: 'auto' }} />
+          <img src="/logo-still.svg"  alt="STILL"  style={{ height: 20, width: 'auto' }} />
+          <img src="/logo-coffee.svg" alt="coffee" style={{ height: 20, width: 'auto' }} />
         </div>
       </a>
 
       {/* Links */}
-      <div className="flex items-center gap-7">
-        <a href="#about"
-           className="text-[11px] font-avant tracking-[0.25em] uppercase text-cream/55
-                      hover:text-cream transition-colors duration-200">
+      <div className="flex items-center gap-8">
+        <a href="#about" className="nav-link text-cream hover:text-sky transition-all duration-400">
           Our story
         </a>
-        <a href="#"
-           className="text-[11px] font-avant tracking-[0.25em] uppercase
-                      border border-cream/30 text-cream/55
-                      hover:border-cream/70 hover:text-cream
-                      px-4 py-1.5 rounded-full transition-all duration-200">
+        <a href="#" className="nav-link text-cream hover:text-sky transition-all duration-400">
           Merch
         </a>
-        <a href="#coffees"
-           className="text-[11px] font-avant tracking-[0.2em] uppercase
-                      bg-orange text-cream px-5 py-2 rounded-full
-                      hover:bg-orange/85 transition-colors duration-200">
+        <a href="#coffees" className="nav-link bg-sky text-maroon px-4 py-1 rounded-full hover:bg-cream transition-colors duration-400">
           Find your next coffee
         </a>
+      </div>
       </div>
     </nav>
   )

@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const QUOTE_TEXT = 'The best cup of coffee is the one drunk in silence, in the presence of your inner peace.'
+const QUOTE_TEXT = 'The best cup of coffee is the one drunk in the presence of your inner peace.'
 
 function CharSpans({ text }) {
   return useMemo(() => (
@@ -99,7 +99,7 @@ export default function Quote() {
         <blockquote
           ref={quoteRef}
           className="font-serif italic text-forest
-                     text-[clamp(26px,3.4vw,52px)] leading-[1.25]"
+                     text-[clamp(26px,3.4vw,52px)] leading-tight"
         >
           <CharSpans text={QUOTE_TEXT} />
           <footer className="mt-6 font-avant font-bold text-[10px] tracking-[0.3em]
@@ -117,7 +117,7 @@ export default function Quote() {
       </div>
 
       {/* Abstract still-life */}
-      <div ref={decoRef} className="relative flex-shrink-0 w-72 h-64" style={{ opacity: 0 }}>
+      <div ref={decoRef} className="relative shrink-0 w-72 h-64" style={{ opacity: 0 }}>
         {[
           { rot: -9,  tx: -10, ty: 15 },
           { rot:  2,  tx:  20, ty: 5  },

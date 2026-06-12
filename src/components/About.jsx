@@ -9,6 +9,7 @@ gsap.registerPlugin(ScrollTrigger)
 export default function About() {
   const sectionRef  = useRef()
   const photoRef    = useRef()
+  const photoColRef = useRef()
   const ghostBgRef  = useRef()
   const statRefs    = useRef([])
 
@@ -72,9 +73,8 @@ export default function About() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="about" className="bg-forest px-12 py-24 relative overflow-hidden scroll-mt-14">
-      {/* Foam reveal overlay — mouse traces through cream foam to uncover content */}
-      <FoamReveal containerRef={sectionRef} />
+    <section ref={sectionRef} id="about" className="bg-forest relative overflow-hidden scroll-mt-14">
+      <div className="container py-24">
 
       {/* Ghost background text */}
       <div ref={ghostBgRef} className="absolute inset-0 flex items-start justify-end overflow-hidden pointer-events-none select-none" style={{ zIndex: 0 }}>
@@ -93,13 +93,13 @@ export default function About() {
         </span>
       </div>
 
-      <h3 className="text-cream/60">About Still</h3>
+      <h3 className="text-cream/60">About</h3>
 
       <div className="mt-8 grid grid-cols-2 gap-20 items-start">
 
         {/* Text column */}
         <div>
-          <CharReveal className="font-serif italic text-[clamp(36px,4.5vw,66px)] leading-[1.1] text-cream mb-10">
+          <CharReveal className="text-cream mb-10">
             A lounge built on slowness.
           </CharReveal>
 
@@ -141,7 +141,8 @@ export default function About() {
         </div>
 
         {/* Photo column */}
-        <div className="space-y-3">
+        <div ref={photoColRef} className="space-y-3 relative">
+          <FoamReveal containerRef={photoColRef} />
           {/* Main "photo" */}
           <div className="rounded-xl overflow-hidden relative" style={{ aspectRatio: '4/3' }}>
             <div
@@ -149,12 +150,9 @@ export default function About() {
               style={{
                 position: 'absolute',
                 top: '-12%', bottom: '-12%', left: 0, right: 0,
-                background: `
-                  linear-gradient(160deg,
-                    #243527 0%,
-                    #3D5240 35%,
-                    #2F4534 60%,
-                    #1A2C1C 100%)`,
+                backgroundImage: `url('/img/mood-playful.webp')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 willChange: 'transform',
               }}
             />
@@ -206,7 +204,7 @@ export default function About() {
           {/* Small caption card */}
           <div className="flex items-center gap-4 px-1">
             <div className="w-1 h-1 rounded-full bg-orange/60" />
-            <p className="font-avant text-[11px] text-cream/35 tracking-[0.05em]">
+            <p className="font-avant text-[11px] text-cream/35 tracking-wider">
               Specialty grade only — direct trade sourcing since 2018
             </p>
           </div>
@@ -214,8 +212,9 @@ export default function About() {
           {/* Secondary editorial row — two small accent photos */}
           <div className="grid grid-cols-2 gap-3 mt-1">
             {[
-              { label: 'Pour-over ritual', bg: 'linear-gradient(135deg, #1E3020 0%, #2F4534 100%)' },
-              { label: 'Origin beans', bg: 'linear-gradient(135deg, #4A2818 0%, #7A3820 100%)' },
+              { label: 'Pour-over ritual', bg: "url('/img/mood-cups.webp') center/cover no-repeat" },
+{ label: 'Origin beans',     bg: "url('/img/texture-coffee.webp') center/cover no-repeat" },
+
             ].map(p => (
               <div key={p.label} className="rounded-lg overflow-hidden relative" style={{ aspectRatio: '4/3' }}>
                 <div className="w-full h-full" style={{ background: p.bg }} />
@@ -229,6 +228,7 @@ export default function About() {
           </div>
         </div>
 
+      </div>
       </div>
     </section>
   )

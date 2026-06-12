@@ -4,23 +4,62 @@
   --font-serif: "Instrument Serif", Georgia, serif;
   --font-avant: "itc-avant-garde-gothic-pro", "itc-avant-garde-gothic-lt", sans-serif;
 
-  --color-forest: #25432B;
+  --color-forest: #25432b;
   --color-charcoal: #292929;
-  --color-orange: #E5501A;
-  --color-sky: #C3DCF4;
-  --color-cream: #F8F5E6;
-  --color-maroon: #7A1E1E;
-  --color-sand: #D4CAB8;
+  --color-orange: #e5501a;
+  --color-sky: #c3dcf4;
+  --color-cream: #f8f5e6;
+  --color-maroon: #7a1e1e;
+  --color-sand: #d4cab8;
+  --color-oat:  #c8b8a0;
 }
 
-html {
+html, body {
   scroll-behavior: smooth;
+  background-color: #292929; /* --color-charcoal : fond permanent derrière toutes les sections */
 }
 
 @layer base {
-  h3 {
-    @apply text-sm font-avant font-bold tracking-[0.2em] uppercase;
+  h2 {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(42px, 5vw, 76px);
+    line-height: 1.05;
   }
+  h3 {
+    @apply text-sm font-avant uppercase font-bold italic tracking-wider;
+  }
+  h4 {
+    font-family: var(--font-avant);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+  }
+  p {
+    font-family: var(--font-avant);
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+  }
+}
+
+.nav-link {
+  @apply text-sm font-avant uppercase font-bold italic tracking-wider;
+}
+
+.serif-span {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 24px;
+}
+
+/* Content container — max-width centré, padding latéral minimum */
+.container {
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 3rem;
+  padding-right: 3rem;
 }
 
 /* STILL glitch ghost */
@@ -41,7 +80,8 @@ html {
 
 /* Card hover lift */
 .coffee-card {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s ease;
 }
 

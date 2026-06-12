@@ -22,12 +22,13 @@ const CARDS = [
     ghost: 'YIRGACHEFFE',
   },
   {
-    region: 'Yemen', origin: 'Mocha', altitude: '1,500 – 2,000 m',
-    harvest: 'Harvest: Oct – Dec', notes: 'Wild fruit · aged terroir · spice',
-    bg: '#C3DCF4', text: '#25432B',
+    region: 'Japan', origin: 'Uji, Kyoto', altitude: '100 – 350 m',
+    harvest: 'Harvest: Apr – May', notes: 'Umami · sweet grass · creamy finish',
+    bg: '#C8DDB8', text: '#1A3320',
     rot: 5, dy: 12, sc: 1, zIndex: 10,
-    imgGradient: 'linear-gradient(155deg, #A0C8E8 0%, #C8DFF5 55%, #7AAACE 100%)',
-    ghost: 'MOCHA',
+    imgGradient: 'linear-gradient(155deg, #7A9E68 0%, #B0CC98 55%, #5A7A48 100%)',
+    ghost: 'UJICHA',
+    matcha: true,
   },
 ]
 
@@ -68,18 +69,18 @@ function Card({ card, cardRef }) {
             {card.ghost}
           </span>
         </div>
-        {/* Featured badge */}
-        {card.featured && (
+        {/* Featured / Matcha badge */}
+        {(card.featured || card.matcha) && (
           <div
             className="absolute top-2.5 right-2.5 font-avant font-bold
                        text-[8px] tracking-[0.25em] uppercase"
             style={{
-              border: '1px solid rgba(242,237,227,0.4)',
+              border: `1px solid ${card.matcha ? 'rgba(26,51,32,0.4)' : 'rgba(242,237,227,0.4)'}`,
               padding: '2px 7px',
-              color: 'rgba(242,237,227,0.7)',
+              color: card.matcha ? 'rgba(26,51,32,0.65)' : 'rgba(242,237,227,0.7)',
             }}
           >
-            Signature
+            {card.matcha ? 'Matcha' : 'Signature'}
           </div>
         )}
       </div>
@@ -87,7 +88,7 @@ function Card({ card, cardRef }) {
       {/* Card info */}
       <div className="px-4 pt-3" style={{ color: card.text }}>
         <div className="text-[10px] font-avant tracking-[0.3em] uppercase opacity-60">
-          {card.origin}
+          {card.matcha ? 'Ceremonial grade' : card.origin}
         </div>
         <div className="font-avant font-bold text-[15px] mt-0.5">{card.region}</div>
         <div className="text-[11px] mt-2 opacity-50">Altitude {card.altitude}</div>
@@ -189,7 +190,8 @@ export default function Coffees() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="coffees" className="bg-charcoal px-12 py-24 relative overflow-hidden scroll-mt-14">
+    <section ref={sectionRef} id="coffees" className="bg-charcoal relative overflow-hidden scroll-mt-14">
+      <div className="container py-24">
       {/* Dynamic mouse-follow spotlight */}
       <div
         ref={spotRef}
@@ -200,17 +202,16 @@ export default function Coffees() {
         }}
       />
 
-      <h2 ref={labelRef} className="text-sm font-avant font-bold tracking-[0.2em] uppercase text-cream/50">
+      <h3 ref={labelRef} className="text-cream/50">
         Coffees
-      </h2>
+      </h3>
 
       <div ref={headerRef} className="mt-4 flex items-end justify-between">
-        <p
-          className="font-serif italic text-[clamp(28px,3.5vw,54px)] leading-[1.1] text-cream max-w-sm still-ghost"
-          data-text="The collection."
+        <h2
+          className="text-cream max-w-sm"
         >
           The collection.
-        </p>
+        </h2>
         <p className="text-cream/38 text-[12px] font-avant leading-relaxed max-w-xs text-right pb-1">
           Three origins, one standard of excellence.<br />
           Each harvest tracked from soil to cup.
@@ -242,6 +243,7 @@ export default function Coffees() {
         ))}
       </div>
 
+      </div>
     </section>
   )
 }

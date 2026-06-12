@@ -25,7 +25,7 @@ const ORIGIN_COORDS = [
   { lat: 14.5, lon:  44.2 }, // Yemen
 ]
 
-function latLonToXYZ(lat, lon, r = 1.52) {
+function latLonToXYZ(lat, lon, r = 1.37) {
   const phi   = (90 - lat) * (Math.PI / 180)
   const theta = (lon + 180) * (Math.PI / 180)
   return [
@@ -76,18 +76,47 @@ function buildTexture() {
   return c
 }
 
+function buildShadowTexture() {
+  const c = document.createElement('canvas')
+  c.width = c.height = 256
+  const ctx = c.getContext('2d')
+  const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128)
+  g.addColorStop(0,   'rgba(0,0,0,0.72)')
+  g.addColorStop(0.5, 'rgba(0,0,0,0.28)')
+  g.addColorStop(1,   'rgba(0,0,0,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 256, 256)
+  return c
+}
+
 function GlobeScene({ rotRef }) {
-  const groupRef = useRef()
+  const groupRef  = useRef()
+  const shadowRef = useRef()
 
   const texture = useMemo(() => {
-    const c   = buildTexture()
-    const tex = new THREE.CanvasTexture(c)
+    const tex = new THREE.CanvasTexture(buildTexture())
     return tex
   }, [])
 
-  useFrame(() => {
-    if (groupRef.current && rotRef) {
-      groupRef.current.rotation.y = rotRef.current
+  const shadowTex = useMemo(() => {
+    const tex = new THREE.CanvasTexture(buildShadowTexture())
+    return tex
+  }, [])
+
+  useFrame((state) => {
+    if (!groupRef.current) return
+    if (rotRef) groupRef.current.rotation.y = rotRef.current
+
+    // Légère oscillation verticale (float)
+    const t = state.clock.elapsedTime
+    const f = Math.sin(t * 0.55) * 0.055
+    groupRef.current.position.y = f
+
+    // L'ombre réagit au float
+    if (shadowRef.current) {
+      const s = 1 - f * 0.1
+      shadowRef.current.scale.set(s, s, 1)
+      shadowRef.current.material.opacity = 0.34 - f * 0.07
     }
   })
 
@@ -97,16 +126,27 @@ function GlobeScene({ rotRef }) {
       <directionalLight position={[5, 3, 4]} intensity={1.2} color="#fff8f0" />
       <pointLight position={[-5, -2, -4]} intensity={0.28} color="#162518" />
 
+      {/* Ombre portée au sol — plan aplati en z pour rester dans le frustum caméra */}
+      <mesh ref={shadowRef} position={[0, -1.52, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2.4, 0.8]} />
+        <meshBasicMaterial
+          map={shadowTex}
+          transparent
+          opacity={0.38}
+          depthWrite={false}
+        />
+      </mesh>
+
       <group ref={groupRef}>
         {/* Globe */}
         <mesh>
-          <sphereGeometry args={[1.5, 72, 36]} />
+          <sphereGeometry args={[1.35, 72, 36]} />
           <meshStandardMaterial map={texture} roughness={0.82} metalness={0.04} />
         </mesh>
 
         {/* Atmosphere */}
         <mesh>
-          <sphereGeometry args={[1.59, 32, 16]} />
+          <sphereGeometry args={[1.43, 32, 16]} />
           <meshStandardMaterial
             transparent opacity={0.065}
             color="#3D8A50"
@@ -134,7 +174,7 @@ export default function Globe3D({ rotRef, style }) {
   return (
     <div style={{ width: '100%', height: '100%', ...style }}>
       <Canvas
-        camera={{ position: [0, 0, 3.8], fov: 45 }}
+        camera={{ position: [0, 0, 4.4], fov: 42 }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent', width: '100%', height: '100%' }}
       >

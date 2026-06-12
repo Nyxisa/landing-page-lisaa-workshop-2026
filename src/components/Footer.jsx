@@ -1,4 +1,4 @@
-import { useRef, useLayoutEffect } from 'react'
+import { useRef, useLayoutEffect, useState, useEffect } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import FooterParticles from './FooterParticles'
@@ -22,6 +22,18 @@ const COLS = [
 
 export default function Footer() {
   const footerRef = useRef()
+  const [pipeFull, setPipeFull] = useState(false)
+
+  useEffect(() => {
+    const onFull  = () => setPipeFull(true)
+    const onReset = () => setPipeFull(false)
+    window.addEventListener('pipes-full',  onFull)
+    window.addEventListener('pipes-reset', onReset)
+    return () => {
+      window.removeEventListener('pipes-full',  onFull)
+      window.removeEventListener('pipes-reset', onReset)
+    }
+  }, [])
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -41,9 +53,10 @@ export default function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="bg-charcoal px-12 pt-20 pb-0 overflow-hidden border-t border-cream/20 relative"
+      className="bg-charcoal pb-0 overflow-hidden border-t border-cream/20 relative"
     >
       <FooterParticles />
+      <div className="container pt-20">
 
       {/* Newsletter */}
       <div className="mb-20 grid grid-cols-2 gap-16 items-end border-b border-cream/8 pb-20">
@@ -110,19 +123,31 @@ export default function Footer() {
         </span>
       </div>
 
-      {/* Large ghost logo — centered, bottom */}
-      <div className="-mx-12 flex justify-center">
+      </div>{/* end .container */}
+
+      {/* Large ghost logo — scroll-driven : outline par défaut → fill quand les tuyaux arrivent au footer */}
+      <div className="relative flex justify-center" style={{ userSelect: 'none' }} aria-hidden="true">
+        {/* Outline — visible par défaut tant que les tuyaux ne sont pas pleins */}
         <img
-          src="/logo-still-coffee.svg"
-          alt="STILL coffee"
+          src="/logo-still-coffee-outline.svg"
+          alt=""
+          className="transition-opacity duration-700"
           style={{
             height: 'clamp(140px, 22vw, 320px)',
             width: 'auto',
-            opacity: 0.07,
             filter: 'brightness(3)',
-            userSelect: 'none',
+            opacity: pipeFull ? 0 : 0.10,
           }}
-          aria-hidden="true"
+        />
+        {/* Fill — apparaît quand scroll = 100% (pipes-full) */}
+        <img
+          src="/logo-still-coffee.svg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700"
+          style={{
+            filter: 'brightness(3)',
+            opacity: pipeFull ? 0.10 : 0,
+          }}
         />
       </div>
 

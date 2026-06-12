@@ -1,13 +1,12 @@
 import { useRef, useEffect, useLayoutEffect } from 'react'
 import gsap from 'gsap'
-import HeroParticles from './HeroParticles'
 import HeroFoam from './HeroFoam'
 
 // Speed: 0 = fixed in viewport | 1 = scrolls normally | negative = faster than scroll
 const LAYERS = [
-  { src: '/Coffee-beans-3.webp', speed: 0.60, zIndex: 5  }, // far bg  — monte à 40% vitesse
-  { src: '/Coffee-beans-2.webp', speed: 0.40, zIndex: 6  }, // mid bg  — monte à 60% vitesse
-  { src: '/Coffee-beans-1.webp', speed: 0.15, zIndex: 20 }, // devant  — monte à 85% vitesse
+  { src: '/img/Coffee-beans-3.webp', speed: 0.60, zIndex: 5  }, // far bg  — monte à 40% vitesse
+  { src: '/img/Coffee-beans-2.webp', speed: 0.40, zIndex: 6  }, // mid bg  — monte à 60% vitesse
+  { src: '/img/Coffee-beans-1.webp', speed: 0.15, zIndex: 20 }, // devant  — monte à 85% vitesse
 ]
 const LOGO_SPEED = -0.4  // logo monte à 140% vitesse → s'échappe vers le haut en premier
 
@@ -54,8 +53,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className="relative h-screen overflow-hidden bg-forest
-    ">
+    <section className="relative h-screen overflow-hidden bg-forest z-20">
 
       {/* ── 3 images — même position, même taille, seuls speed + z-index changent ── */}
       {LAYERS.map((layer, i) => (
@@ -89,21 +87,20 @@ export default function Hero() {
       {/* ── Coffee foam/crema layer ── */}
       <HeroFoam />
 
-      {/* ── Three.js particles overlay ── */}
-      <HeroParticles />
-
       {/* ── Logo + tagline ── */}
-      <div ref={logoRef} className="absolute left-0 px-12 pb-14" style={{ zIndex: 10, top: '60%', willChange: 'transform' }}>
-        <h1>
-          <img
-            src="/logo-still-coffee.svg"
-            alt="STILL coffee"
-            style={{ height: '200px', width: 'auto' }}
-          />
-        </h1>
-        <p className="font-serif italic text-cream/45 mt-4 text-lg tracking-wide">
-          Where time slows down.
-        </p>
+      <div ref={logoRef} className="absolute left-0 right-0 pb-14" style={{ zIndex: 10, top: '60%', willChange: 'transform' }}>
+        <div className="container">
+          <h1>
+            <img
+              src="/logo-still-coffee.svg"
+              alt="STILL coffee"
+              style={{ height: '120px', width: 'auto' }}
+            />
+          </h1>
+          <h2 className="text-sand/40 mt-6">
+            Where time slows down.
+          </h2>
+        </div>
       </div>
 
       {/* ── Scroll indicator ── */}
@@ -114,7 +111,7 @@ export default function Hero() {
         <span className="font-avant text-[9px] tracking-[0.45em] uppercase text-cream/30">
           Scroll
         </span>
-        <div className="w-px h-8 bg-gradient-to-b from-cream/30 to-transparent scroll-line-anim" />
+        <div className="w-px h-8 bg-linear-to-b from-cream/30 to-transparent scroll-line-anim" />
       </div>
 
       {/* ── 4 barres de progression scroll ── */}

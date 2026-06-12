@@ -15,14 +15,14 @@ export default function PageLoader() {
 
     // Logo fades in
     tl.fromTo(logoRef.current,
-      { opacity: 0, scale: 0.92 },
-      { opacity: 1, scale: 1, duration: 0.9, ease: 'power3.out' },
+      { opacity: 0, scale: 0.9 },
+      { opacity: 1, scale: 1, duration: 0.8, ease: 'power3.out' },
       0.2
     )
     // Line grows below logo
     .fromTo(lineRef.current,
       { scaleX: 0 },
-      { scaleX: 1, duration: 0.7, ease: 'power2.out' },
+      { scaleX: 1, duration: 1.2, ease: 'power2.out' },
       0.8
     )
     // Hold → then wipe entire overlay upward
@@ -39,12 +39,12 @@ export default function PageLoader() {
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        backgroundColor: '#25432B',
+        backgroundColor: '#292929',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 24,
+        gap: '4rem',
         pointerEvents: 'none',
       }}
     >
@@ -57,11 +57,12 @@ export default function PageLoader() {
       <div
         ref={lineRef}
         style={{
-          width: 48,
-          height: 1,
+          width: 240,
+          height: 4,
           backgroundColor: 'rgba(248,245,230,0.3)',
           transformOrigin: 'left center',
           transform: 'scaleX(0)',
+          borderRadius:'40px',
         }}
       />
     </div>

@@ -1,55 +1,56 @@
 import { useRef, useEffect } from 'react'
 
-function drawFoamToCanvas(ctx, W, H) {
-  ctx.clearRect(0, 0, W, H)
+const REPULSE_R = 90
+const REPULSE_F = 4.5
+const SPRING    = 0.06
+const DAMP      = 0.78
+const DELAY     = 350
+const RAMP      = 750
 
-  // Base haze — intensifies towards right
-  const haze = ctx.createLinearGradient(W * 0.2, 0, W, 0)
-  haze.addColorStop(0,   'rgba(240,232,212,0)')
-  haze.addColorStop(0.35,'rgba(238,230,208,0.12)')
-  haze.addColorStop(0.7, 'rgba(240,232,210,0.35)')
-  haze.addColorStop(1,   'rgba(242,235,215,0.55)')
-  ctx.fillStyle = haze
-  ctx.fillRect(0, 0, W, H)
+const SPACING   = 8    // px entre centres — gap visuel ~4px avec r≈2px
+const JITTER    = 3    // ±px de bruit de position (aspérités)
+const BATCHES   = 8    // niveaux d'opacité groupés → 8 fill() au lieu de N
+const MAX_OP    = 0.30 // opacité max d'une particule
 
-  // 700 tiny spray dots (radius 1–7px)
-  for (let i = 0; i < 700; i++) {
-    const t  = Math.pow(Math.random(), 0.45)       // bias strongly right
-    const x  = W * (0.15 + t * 0.88)
-    const y  = Math.random() * H
-    const r  = 0.8 + Math.random() * 6.5
-    const rl = Math.max(0, (x - W * 0.15) / (W * 0.85))
-    const op = rl * (0.2 + Math.random() * 0.55)
+function fadeLeft(x, W) {
+  return Math.min(1, Math.max(0, (x - W * 0.04) / (W * 0.18)))
+}
 
-    ctx.beginPath()
-    ctx.arc(x, y, r, 0, Math.PI * 2)
-    ctx.fillStyle = `rgba(242,235,215,${op})`
-    ctx.fill()
+function genParticles(W, H) {
+  const solids = []
+  const cols   = Math.ceil(W / SPACING) + 1
+  const rows   = Math.ceil(H / SPACING) + 1
 
-    // Tiny highlight on larger drops
-    if (r > 3) {
-      ctx.beginPath()
-      ctx.arc(x - r * 0.3, y - r * 0.32, r * 0.22, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(255,252,246,${op * 0.55})`
-      ctx.fill()
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const bx = col * SPACING + (Math.random() - 0.5) * JITTER * 2
+      const by = row * SPACING + (Math.random() - 0.5) * JITTER * 2
+      if (bx < -4 || bx > W + 4 || by < -4 || by > H + 4) continue
+      const fl = fadeLeft(bx, W)
+      if (fl < 0.02) continue
+      const r  = 1.0 + Math.random() * 1.2       // 1–2.2px
+      const op = fl * (0.12 + Math.random() * 0.18) // max ~0.30
+      solids.push({ bx, by, x: bx, y: by, vx: 0, vy: 0, r, op, t: 0 })
     }
   }
 
-  // 140 outlined foam bubbles (radius 5–18px) — no fill, just stroke
-  for (let i = 0; i < 140; i++) {
-    const t  = Math.pow(Math.random(), 0.6)
-    const x  = W * (0.22 + t * 0.82)
-    const y  = Math.random() * H
-    const r  = 4 + Math.random() * 14
-    const rl = Math.max(0, (x - W * 0.2) / (W * 0.8))
-    const op = rl * (0.18 + Math.random() * 0.28)
+  // Pré-tri par opacité → le rendu par batch n'a besoin d'aucun tableau dynamique
+  solids.sort((a, b) => a.op - b.op)
 
-    ctx.beginPath()
-    ctx.arc(x, y, r, 0, Math.PI * 2)
-    ctx.strokeStyle = `rgba(235,228,205,${op})`
-    ctx.lineWidth = 0.7
-    ctx.stroke()
+  // Anneaux décoratifs (trous dans la mousse)
+  const rings = []
+  for (let i = 0; i < 5; i++) {
+    const bx = W * (0.10 + Math.random() * 0.80)
+    const by = H * (0.10 + Math.random() * 0.80)
+    rings.push({
+      bx, by, x: bx, y: by, vx: 0, vy: 0,
+      r:  14 + Math.random() * 22,
+      op: 0.04 + Math.random() * 0.08,
+      t:  0,
+    })
   }
+
+  return { solids, rings }
 }
 
 export default function FoamReveal({ containerRef }) {
@@ -60,88 +61,112 @@ export default function FoamReveal({ containerRef }) {
     const container = containerRef?.current
     if (!canvas || !container) return
 
-    const ctx = canvas.getContext('2d')
-    const BRUSH = 88
-
-    // Offscreen canvas = "full foam" reference for restoration
-    const foam    = document.createElement('canvas')
-    const foamCtx = foam.getContext('2d')
+    const ctx  = canvas.getContext('2d')
+    let solids = [], rings = []
+    let rafId
+    const mouse = { x: -9999, y: -9999 }
 
     const resize = () => {
-      canvas.width = foam.width  = container.offsetWidth
-      canvas.height = foam.height = container.offsetHeight
-      drawFoamToCanvas(foamCtx, foam.width, foam.height)
-      drawFoamToCanvas(ctx, canvas.width, canvas.height)
+      const W = container.offsetWidth
+      const H = container.offsetHeight
+      canvas.width  = W
+      canvas.height = H
+      const gen = genParticles(W, H)
+      solids = gen.solids
+      rings  = gen.rings
     }
 
     resize()
     window.addEventListener('resize', resize)
 
-    // --- Erase ---
-    let lastX = -9999, lastY = -9999
+    const tick = () => {
+      const W   = canvas.width
+      const H   = canvas.height
+      const now = performance.now()
 
-    const erase = (x, y) => {
-      const dist  = Math.hypot(x - lastX, y - lastY)
-      const steps = Math.max(1, Math.ceil(dist / 10))
-      ctx.globalCompositeOperation = 'destination-out'
+      ctx.clearRect(0, 0, W, H)
 
-      for (let i = 0; i <= steps; i++) {
-        const px   = lastX + (x - lastX) * (i / steps)
-        const py   = lastY + (y - lastY) * (i / steps)
-        const grad = ctx.createRadialGradient(px, py, 0, px, py, BRUSH)
-        grad.addColorStop(0,   'rgba(0,0,0,1)')
-        grad.addColorStop(0.5, 'rgba(0,0,0,0.88)')
-        grad.addColorStop(0.8, 'rgba(0,0,0,0.3)')
-        grad.addColorStop(1,   'rgba(0,0,0,0)')
+      // Haze légère — comble les micro-gaps
+      const haze = ctx.createLinearGradient(0, 0, W, 0)
+      haze.addColorStop(0,    'rgba(240,232,212,0)')
+      haze.addColorStop(0.06, 'rgba(240,232,212,0)')
+      haze.addColorStop(0.28, 'rgba(238,230,208,0.07)')
+      haze.addColorStop(1,    'rgba(242,235,215,0.16)')
+      ctx.fillStyle = haze
+      ctx.fillRect(0, 0, W, H)
+
+      // ── Physique + rendu batché ───────────────────────────────────────────
+      // Particules triées par op → on flush un fill() à chaque changement de bucket
+      let currentBucket = -1
+
+      for (const p of solids) {
+        // Physique
+        const dx   = p.x - mouse.x
+        const dy   = p.y - mouse.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+
+        if (dist < REPULSE_R && dist > 0.5) {
+          const force = ((REPULSE_R - dist) / REPULSE_R) * REPULSE_F
+          p.vx += (dx / dist) * force
+          p.vy += (dy / dist) * force
+          p.t   = now
+        }
+
+        const age = now - p.t
+        const str = Math.min(1, Math.max(0, (age - DELAY) / RAMP))
+        p.vx += (p.bx - p.x) * SPRING * str
+        p.vy += (p.by - p.y) * SPRING * str
+        p.vx *= DAMP
+        p.vy *= DAMP
+        p.x  += p.vx
+        p.y  += p.vy
+
+        // Batch : flush quand le bucket change
+        const bucket = Math.min(BATCHES - 1, Math.floor((p.op / MAX_OP) * BATCHES))
+        if (bucket !== currentBucket) {
+          if (currentBucket >= 0) ctx.fill()
+          const alpha = ((bucket + 0.5) / BATCHES) * MAX_OP
+          ctx.fillStyle = `rgba(242,235,215,${alpha.toFixed(3)})`
+          ctx.beginPath()
+          currentBucket = bucket
+        }
+        ctx.moveTo(p.x + p.r, p.y)
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+      }
+      if (currentBucket >= 0) ctx.fill()
+
+      // ── Anneaux ──────────────────────────────────────────────────────────
+      for (const p of rings) {
+        const age = now - p.t
+        const str = Math.min(1, Math.max(0, (age - DELAY) / RAMP))
+        p.vx += (p.bx - p.x) * SPRING * str
+        p.vy += (p.by - p.y) * SPRING * str
+        p.vx *= DAMP; p.vy *= DAMP
+        p.x  += p.vx;  p.y  += p.vy
         ctx.beginPath()
-        ctx.arc(px, py, BRUSH, 0, Math.PI * 2)
-        ctx.fillStyle = grad
-        ctx.fill()
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+        ctx.strokeStyle = `rgba(235,228,205,${p.op})`
+        ctx.lineWidth   = 0.7
+        ctx.stroke()
       }
-      ctx.globalCompositeOperation = 'source-over'
+
+      rafId = requestAnimationFrame(tick)
     }
 
-    // --- Restore after hover ---
-    let restoreId    = null
-    let restoreDelay = null
-
-    const startRestore = () => {
-      let frames = 0
-      const tick = () => {
-        ctx.globalAlpha = 0.022          // ~2.2% blended each frame → ~2s full restore
-        ctx.globalCompositeOperation = 'source-over'
-        ctx.drawImage(foam, 0, 0)
-        ctx.globalAlpha = 1
-        frames++
-        restoreId = frames < 130 ? requestAnimationFrame(tick) : null
-      }
-      restoreId = requestAnimationFrame(tick)
-    }
-
-    const cancelRestore = () => {
-      if (restoreId)    { cancelAnimationFrame(restoreId); restoreId = null }
-      if (restoreDelay) { clearTimeout(restoreDelay);       restoreDelay = null }
-    }
+    rafId = requestAnimationFrame(tick)
 
     const onMove = (e) => {
-      cancelRestore()
       const rect = container.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-      erase(x, y)
-      lastX = x; lastY = y
+      mouse.x = e.clientX - rect.left
+      mouse.y = e.clientY - rect.top
     }
-
-    const onLeave = () => {
-      lastX = -9999; lastY = -9999
-      restoreDelay = setTimeout(startRestore, 700)
-    }
+    const onLeave = () => { mouse.x = -9999; mouse.y = -9999 }
 
     container.addEventListener('mousemove', onMove, { passive: true })
     container.addEventListener('mouseleave', onLeave)
 
     return () => {
-      cancelRestore()
+      cancelAnimationFrame(rafId)
       window.removeEventListener('resize', resize)
       container.removeEventListener('mousemove', onMove)
       container.removeEventListener('mouseleave', onLeave)
